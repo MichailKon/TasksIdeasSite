@@ -1,0 +1,18 @@
+{% extends "ideas/base.html" %}
+{% block content %}
+    <a href="idea/new" class="btn btn-primary">Новая идея</a>
+    <br>
+    {% for idea in ideas %}
+        <article class="media content-section">
+            <div class="media-body">
+                <h2><a class="article-title" href="{% url 'idea-detail' idea.id %}">{{ idea.title }}</a></h2>
+                <p class="article-content">{{ idea.content }}</p>
+                <small class="text-muted">Тип: {{ idea.type }}</small>
+                <br>
+                <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
+                <br>
+                <small class="text-muted">Авторы: {{ idea.authors.all|join:", " }}</small>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock content %}
