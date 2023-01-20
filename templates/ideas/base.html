@@ -16,6 +16,7 @@
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
 
     <title>Идеи задач</title>
+    {{ form_filter.media.css }}
 </head>
 <body>
 <header class="site-header">
@@ -51,17 +52,24 @@
         <div class="col-md-8">
             {% block content %}{% endblock %}
         </div>
-        <div class="col-md-4">
-            <div class="content-section">
-                <h3>Фильтр</h3>
-                <form>
-                    {% load crispy_forms_tags %}
-{#                    {{ form.as_p }}#}
-                    {{ form|crispy }}
-                    <input type="submit" value="Искать" class="btn btn-success">
-                </form>
+        {% if user.is_authenticated and form_filter %}
+            <script type="text/javascript">
+                window.onerror = function (msg) {
+                    $("body").attr("JSError", msg);
+                }
+            </script>
+
+            <div class="col-md-4">
+                <div class="content-section">
+                    <h3>Фильтр</h3>
+                    <form>
+                        {% load crispy_forms_tags %}
+                        {{ form_filter|crispy }}
+                        <input type="submit" value="Искать" class="btn btn-success">
+                    </form>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
 </main>
@@ -80,5 +88,6 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+{{ form_filter.media.js }}
 </body>
 </html>

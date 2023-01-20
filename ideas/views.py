@@ -28,7 +28,7 @@ def render_home(request):
     result = result.order_by("-date_posted")
     return render(request, 'ideas/home.html',
                   {'ideas': result.all(), 'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
-                   'form': FilterForm})
+                   'form_filter': FilterForm})
 
 
 class IdeaDetailView(DetailView):
