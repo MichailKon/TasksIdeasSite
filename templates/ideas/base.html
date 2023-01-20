@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap, иконки и шрифт -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900'
           rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="{% static 'ideas/main.css' %}">
@@ -35,7 +35,7 @@
                 <div class="navbar-nav">
                     {% if user.is_authenticated %}
                         <a class="nav-item nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
-{#                        <a class="nav-item nav-link" href="{% url 'profile' %}">Профиль</a>#}
+                        {#                        <a class="nav-item nav-link" href="{% url 'profile' %}">Профиль</a>#}
                         <a class="nav-item nav-link" href="{% url 'logout' %}">Выход</a>
                     {% else %}
                         <a class="nav-item nav-link" href="{% url 'login' %}">Вход</a>
@@ -51,24 +51,22 @@
         <div class="col-md-8">
             {% block content %}{% endblock %}
         </div>
-{#        <div class="col-md-4">#}
-{#            <div class="content-section">#}
-{#                <h3>Разделы</h3>#}
-{#                <p class='text-muted'>новости и события#}
-{#                <ul class="list-group">#}
-{#                    <li class="list-group-item list-group-item-light">Новые записи</li>#}
-{#                    <li class="list-group-item list-group-item-light">Объявления</li>#}
-{#                    <li class="list-group-item list-group-item-light">Соревнования</li>#}
-{#                    <li class="list-group-item list-group-item-light">Встречи участников</li>#}
-{#                </ul>#}
-{#            </div>#}
-{#        </div>#}
+        <div class="col-md-4">
+            <div class="content-section">
+                <h3>Фильтр</h3>
+                <form>
+                    {% load crispy_forms_tags %}
+{#                    {{ form.as_p }}#}
+                    {{ form|crispy }}
+                    <input type="submit" value="Искать" class="btn btn-success">
+                </form>
+            </div>
+        </div>
     </div>
 
 </main>
-<!-- Футер закреплен внизу, независимо от количества постов на странице -->
 <footer class="text-center bg-dark">
-    {#    <p><a href="{% url 'blog-home' %}">© Клуб Python Bytes 2022</a></p>#}
+    <p><a href="{% url 'ideas-home' %}">Тут чето будет</a></p>
 </footer>
 
 <!-- Дополнительные скрипты JavaScript -->
