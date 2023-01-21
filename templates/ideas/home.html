@@ -1,6 +1,6 @@
 {% extends "ideas/base.html" %}
 {% block content %}
-    <a href="idea/new" class="btn btn-primary">Новая идея</a>
+    <a class="btn btn-primary" href={% url 'idea-create' %}>Новая идея</a>
     <br>
     {% for idea in ideas %}
         <article class="media content-section">
