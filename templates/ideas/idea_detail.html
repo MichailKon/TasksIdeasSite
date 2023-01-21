@@ -3,7 +3,7 @@
     <h2 class="solar-red">Вы просматриваете конкретную идею</h2>
     <article class="media content-section">
         <div class="media-body">
-            {% if user in object.authors.all or user.is_staff %}
+            {% if user in object.users_can_edit.all or user.is_staff or object.real_author == user %}
                 <div class="article-metadata">
                     <div>
                         <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'idea-update' object.id %}">Редактировать</a>
@@ -13,7 +13,11 @@
             {% endif %}
             <h2 class="article-title">{{ object.title }}</h2>
             <p class="article-content">{{ object.content }}</p>
-            <small class="text-muted">Тип: {{ idea.type }}</small>
+            {% if not idea.type %}
+                <small class="text-muted">Тип: </small>
+            {% else %}
+                <small class="text-muted">Тип: {{ idea.type }}</small>
+            {% endif %}
             <br>
             <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
             <br>

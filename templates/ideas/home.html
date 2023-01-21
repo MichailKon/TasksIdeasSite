@@ -7,7 +7,11 @@
             <div class="media-body">
                 <h2><a class="article-title" href="{% url 'idea-detail' idea.id %}">{{ idea.title }}</a></h2>
                 <p class="article-content">{{ idea.content }}</p>
-                <small class="text-muted">Тип: {{ idea.type }}</small>
+                {% if not idea.type %}
+                    <small class="text-muted">Тип: </small>
+                {% else %}
+                    <small class="text-muted">Тип: {{ idea.type }}</small>
+                {% endif %}
                 <br>
                 <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
                 <br>

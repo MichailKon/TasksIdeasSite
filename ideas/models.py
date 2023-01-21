@@ -25,10 +25,15 @@ def return_user_username(self: User):
 class Idea(models.Model):
     title = models.TextField(verbose_name='Название')
     content = models.TextField(verbose_name='Идея')
-    authors = models.ManyToManyField(User, verbose_name='Авторы')
-    type = models.ForeignKey(IdeaType, on_delete=models.CASCADE, verbose_name='Тип')
+    real_author = models.ForeignKey(User, verbose_name='Автор записи', on_delete=models.CASCADE)
+    type = models.ForeignKey(IdeaType, on_delete=models.SET_DEFAULT, verbose_name='Тип', default=None, null=True)
     tags = models.ManyToManyField(IdeaTag, verbose_name='Теги')
     date_posted = models.DateTimeField(verbose_name='Дата записи', default=timezone.now)
+    authors = models.ManyToManyField(User, verbose_name='Авторы', related_name='idea2authors')
+    users_can_view = models.ManyToManyField(User, verbose_name='Пользователи, которые могут просматривать',
+                                            related_name='idea2person_view')
+    users_can_edit = models.ManyToManyField(User, verbose_name='Пользователи, которые могут редактировать',
+                                            related_name='idea2person_edit')
 
     def __str__(self):
         return self.content

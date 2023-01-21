@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.db.models import Q
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
@@ -31,6 +32,10 @@ def render_home(request):
     if is_valid_param(parameters.get('content_contains')):
         result = result.filter(content__icontains=parameters.get('content_contains'))
         filter_form_params['content_contains'] = parameters.get('content_contains')
+    if not request.user.is_authenticated:
+        result = Idea.objects.none()
+    elif not request.user.is_staff:
+        result = result.filter(Q(users_can_view__in=[request.user.id]) | Q(real_author=request.user.id))
     result = result.order_by("-date_posted")
     form = FilterForm(**filter_form_params)
     return render(request, 'ideas/home.html',
@@ -48,6 +53,7 @@ class IdeaCreateView(CreateView):
     template_name = 'ideas/idea_form.html'
 
     def form_valid(self, form):
+        form.instance.real_author = self.request.user
         return super().form_valid(form)
 
 
@@ -61,7 +67,8 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         idea = self.get_object()
-        if self.request.user in idea.authors.all() or self.request.user.is_staff:
+        user = self.request.user
+        if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
             return True
         return False
 
@@ -72,6 +79,7 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         idea = self.get_object()
-        if self.request.user in idea.authors.all() or self.request.user.is_staff:
+        user = self.request.user
+        if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
             return True
         return False

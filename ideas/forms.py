@@ -33,27 +33,41 @@ class FilterForm(Form):
             self.fields['authors'].initial = authors
 
 
-
 class UpdateIdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
-        fields = ('title', 'content', 'type', 'tags', 'authors')
+        fields = ('title', 'content', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit')
         widgets = {
             'tags': Select2MultipleWidget,
-            'authors': Select2MultipleWidget
+            'authors': Select2MultipleWidget,
+            'users_can_view': Select2MultipleWidget,
+            'users_can_edit': Select2MultipleWidget
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type'].required = False
+        self.fields['tags'].required = False
+        self.fields['authors'].required = False
+        self.fields['users_can_view'].required = False
+        self.fields['users_can_edit'].required = False
 
 
 class AddIdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
-        fields = ('title', 'content', 'type', 'tags', 'authors')
+        fields = ('title', 'content', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit')
         widgets = {
             'tags': Select2MultipleWidget,
-            'authors': Select2MultipleWidget
+            'authors': Select2MultipleWidget,
+            'users_can_view': Select2MultipleWidget,
+            'users_can_edit': Select2MultipleWidget
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['type'].required = False
         self.fields['tags'].required = False
         self.fields['authors'].required = False
+        self.fields['users_can_view'].required = False
+        self.fields['users_can_edit'].required = False
