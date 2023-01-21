@@ -28,8 +28,8 @@ class Idea(models.Model):
     real_author = models.ForeignKey(User, verbose_name='Автор записи', on_delete=models.CASCADE)
     type = models.ForeignKey(IdeaType, on_delete=models.SET_DEFAULT, verbose_name='Тип', default=None, null=True)
     tags = models.ManyToManyField(IdeaTag, verbose_name='Теги')
-    date_posted = models.DateTimeField(verbose_name='Дата записи', auto_now=True)
-    date_update = models.DateTimeField(verbose_name='Дата обновления', default=timezone.now)
+    date_update = models.DateTimeField(verbose_name='Дата обновления', auto_now=True)
+    date_posted = models.DateTimeField(verbose_name='Дата записи', default=timezone.now)
     authors = models.ManyToManyField(User, verbose_name='Авторы', related_name='idea2authors')
     users_can_view = models.ManyToManyField(User, verbose_name='Пользователи, которые могут просматривать',
                                             related_name='idea2person_view')
