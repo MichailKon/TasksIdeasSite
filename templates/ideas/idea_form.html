@@ -8,9 +8,18 @@
                 <legend class="border-bottom mb-4">Новая идея</legend>
                 {{ form|crispy }}
             </fieldset>
+            <br>
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Сохранить</button>
             </div>
         </form>
     </div>
 {% endblock content %}
+
+{% block select2_js %}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block select2_css %}
+    {{ form.media.css }}
+{% endblock %}

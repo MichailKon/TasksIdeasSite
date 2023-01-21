@@ -14,9 +14,10 @@
           rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="{% static 'ideas/main.css' %}">
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    {{ form_filter.media.css }}
+    {% block select2_css %}{% endblock %}
 
     <title>Идеи задач</title>
-    {{ form_filter.media.css }}
 </head>
 <body>
 <header class="site-header">
@@ -65,6 +66,7 @@
                     <form>
                         {% load crispy_forms_tags %}
                         {{ form_filter|crispy }}
+                        <br>
                         <input type="submit" value="Искать" class="btn btn-success">
                     </form>
                 </div>
@@ -89,5 +91,6 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 {{ form_filter.media.js }}
+{% block select2_js %}{% endblock %}
 </body>
 </html>

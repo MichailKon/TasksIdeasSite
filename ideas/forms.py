@@ -1,8 +1,9 @@
-from django.forms import ModelForm, ModelChoiceField, CheckboxSelectMultiple, ChoiceField, SelectMultiple, Form
 from django import forms
-from .models import Idea, IdeaTag, IdeaType
 from django.contrib.auth.models import User
+from django.forms import ModelChoiceField, Form
 from django_select2.forms import Select2MultipleWidget
+
+from .models import IdeaTag, IdeaType, Idea
 
 
 class FilterForm(Form):
@@ -10,10 +11,49 @@ class FilterForm(Form):
     content_contains = forms.CharField(required=False, label='Идея содержит')
     type = ModelChoiceField(queryset=IdeaType.objects.all(), required=False, label='Тип')
     tags = ModelChoiceField(widget=Select2MultipleWidget, queryset=IdeaTag.objects.all(), required=False, label='Теги')
-    authors = ModelChoiceField(queryset=User.objects.all(), widget=Select2MultipleWidget(), required=False,
+    authors = ModelChoiceField(widget=Select2MultipleWidget, queryset=User.objects.all(), required=False,
                                label='Авторы')
 
-    # authors = ModelChoiceField(widget=SelectMultiple, queryset=User.objects.all(), required=False, label='Авторы')
+    def __init__(self, *args, **kwargs):
+        title_contains = kwargs.pop('title_contains') if 'title_contains' in kwargs else None
+        content_contains = kwargs.pop('content_contains') if 'content_contains' in kwargs else None
+        idea_type = kwargs.pop('type') if 'type' in kwargs else None
+        tags = kwargs.pop('tags') if 'tags' in kwargs else None
+        authors = kwargs.pop('authors') if 'authors' in kwargs else None
+        super().__init__(*args, **kwargs)
+        if title_contains:
+            self.fields['title_contains'].text = title_contains
+        if content_contains:
+            self.fields['content_contains'].text = title_contains
+        if idea_type:
+            self.fields['type'].initial = idea_type
+        if tags:
+            self.fields['tags'].initial = tags
+        if authors:
+            self.fields['authors'].initial = authors
+
+
+
+class UpdateIdeaForm(forms.ModelForm):
+    class Meta:
+        model = Idea
+        fields = ('title', 'content', 'type', 'tags', 'authors')
+        widgets = {
+            'tags': Select2MultipleWidget,
+            'authors': Select2MultipleWidget
+        }
+
+
+class AddIdeaForm(forms.ModelForm):
+    class Meta:
+        model = Idea
+        fields = ('title', 'content', 'type', 'tags', 'authors')
+        widgets = {
+            'tags': Select2MultipleWidget,
+            'authors': Select2MultipleWidget
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['tags'].required = False
+        self.fields['authors'].required = False
