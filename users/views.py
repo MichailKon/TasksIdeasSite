@@ -1,8 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
 from .forms import UserRegisterForm, UserUpdateForm
+from django.contrib.auth.views import LoginView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseRedirect
 
 
 @csrf_exempt
@@ -36,3 +39,14 @@ def profile(request):
     }
 
     return render(request, 'users/profile.html', context)
+
+
+class DangerousLoginView(LoginView):
+    """A LoginView with no CSRF protection."""
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        if self.redirect_authenticated_user and self.request.user.is_authenticated:
+            redirect_to = self.get_success_url()
+            return HttpResponseRedirect(redirect_to)
+        return super(LoginView, self).dispatch(request, *args, **kwargs)

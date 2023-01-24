@@ -133,3 +133,5 @@ LOGIN_URL = 'login'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+CSRF_TRUSTED_ORIGINS = ['https://perveevm.ru']
