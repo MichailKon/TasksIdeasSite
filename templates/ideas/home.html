@@ -8,6 +8,9 @@
         <article class="media content-section">
             <div class="media-body">
                 <h2><a class="article-title" href="{% url 'idea-detail' idea.id %}">{{ idea.title }}</a></h2>
+                <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
+                <br>
+                <small class="text-muted">Дата идеи: {{ idea.date_posted|date:"M d, Y" }}</small>
                 <p class="article-content">{{ idea.content }}</p>
                 {% if not idea.type %}
                     <small class="text-muted">Тип: </small>
