@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-ws5!2n9usnza8@fg8ai3szr_$0%+=14y-)u=78$o%8ua=&$dr*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ejudge.strategy48.ru', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['ejudge.strategy48.ru', 'localhost', '127.0.0.1', 'perveevm.ru']
 
 # Application definition
 
