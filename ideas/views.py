@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
