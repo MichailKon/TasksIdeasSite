@@ -2,8 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm
+from django.views.decorators.csrf import csrf_exempt
 
 
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)

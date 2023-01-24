@@ -1,6 +1,8 @@
 {% extends "ideas/base.html" %}
 {% block content %}
-    <a class="btn btn-primary" href={% url 'idea-create' %}>Новая идея</a>
+    {% if user.is_authenticated %}
+        <a class="btn btn-primary" href={% url 'idea-create' %}>Новая идея</a>
+    {% endif %}
     <br>
     {% for idea in ideas %}
         <article class="media content-section">
