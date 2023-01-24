@@ -36,7 +36,7 @@ def render_home(request):
         result = Idea.objects.none()
     elif not request.user.is_staff:
         result = result.filter(Q(users_can_view__in=[request.user.id]) | Q(real_author=request.user.id))
-    result = result.order_by("-date_updated")
+    result = result.order_by("-date_update")
     form = FilterForm(**filter_form_params)
     return render(request, 'ideas/home.html',
                   {'ideas': result.all(), 'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
