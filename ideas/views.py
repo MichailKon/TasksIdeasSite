@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
@@ -14,6 +15,7 @@ def is_valid_param(param):
     return any(map(lambda x: x, param))
 
 
+@csrf_exempt
 def render_home(request):
     parameters = request.GET
     result = Idea.objects
@@ -44,10 +46,12 @@ def render_home(request):
                    'form_filter': form})
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IdeaDetailView(DetailView):
     model = Idea
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IdeaCreateView(CreateView):
     model = Idea
     form_class = AddIdeaForm
@@ -58,6 +62,7 @@ class IdeaCreateView(CreateView):
         return super().form_valid(form)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Idea
     form_class = UpdateIdeaForm
@@ -74,6 +79,7 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return False
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Idea
     success_url = '/'

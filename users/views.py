@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import UserRegisterForm, UserUpdateForm
 
 
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -18,6 +19,7 @@ def register(request):
     return render(request, 'users/register.html', {'form': form})
 
 
+@csrf_exempt
 @login_required
 def profile(request):
     if request.method == 'POST':
