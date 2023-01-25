@@ -35,6 +35,9 @@ def render_home(request):
     if is_valid_param(parameters.get('content_contains')):
         result = result.filter(content__icontains=parameters.get('content_contains'))
         filter_form_params['content_contains'] = parameters.get('content_contains')
+    if is_valid_param(parameters.get('status')):
+        result = result.filter(status=parameters.get('status'))
+        filter_form_params['status'] = parameters.get('status')
     if not request.user.is_authenticated:
         result = Idea.objects.none()
     elif not request.user.is_staff:

@@ -11,6 +11,11 @@
                     </div>
                 </div>
             {% endif %}
+            {% if idea.status %}
+                <small class="text-muted">Статус: {{ idea.status }}</small>
+            {% else %}
+                <small class="text-muted">Статус:</small>
+            {% endif %}
             <h2 class="article-title">{{ object.title }}</h2>
             <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
             <br>

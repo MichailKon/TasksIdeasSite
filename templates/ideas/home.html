@@ -7,6 +7,11 @@
     {% for idea in ideas %}
         <article class="media content-section">
             <div class="media-body">
+                {% if idea.status %}
+                    <small class="text-muted">Статус: {{ idea.status }}</small>
+                {% else %}
+                    <small class="text-muted">Статус:</small>
+                {% endif %}
                 <h2><a class="article-title" href="{% url 'idea-detail' idea.id %}">{{ idea.title }}</a></h2>
                 <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
                 <br>

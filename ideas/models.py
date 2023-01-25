@@ -18,6 +18,13 @@ class IdeaTag(models.Model):
         return self.tag
 
 
+class IdeaStatus(models.Model):
+    status = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.status
+
+
 class Idea(models.Model):
     title = models.TextField(verbose_name='Название')
     content = models.TextField(verbose_name='Идея')
@@ -31,6 +38,7 @@ class Idea(models.Model):
                                             related_name='idea2person_view')
     users_can_edit = models.ManyToManyField(User, verbose_name='Пользователи, которые могут редактировать',
                                             related_name='idea2person_edit')
+    status = models.ForeignKey(IdeaStatus, on_delete=models.SET_DEFAULT, default=None, null=True, verbose_name='Статус')
 
     def __str__(self):
         return self.content

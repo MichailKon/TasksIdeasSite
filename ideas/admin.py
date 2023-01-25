@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Idea, IdeaType, IdeaTag
+from .models import Idea, IdeaType, IdeaTag, IdeaStatus
 
 
 class TagInline(admin.TabularInline):
@@ -16,4 +16,5 @@ class IdeaTagAdmin(admin.ModelAdmin):
 
 admin.site.register(IdeaType)
 admin.site.register(IdeaTag, IdeaTagAdmin)
+admin.site.register(IdeaStatus)
 admin.site.register(Idea)
