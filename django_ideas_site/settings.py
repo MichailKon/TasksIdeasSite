@@ -135,4 +135,5 @@ LOGIN_URL = 'login'
 #     os.path.join(BASE_DIR, 'static'),
 # )
 
-CSRF_TRUSTED_ORIGINS = ['https://perveevm.ru']
+CSRF_TRUSTED_ORIGINS = ['https://perveevm.ru', 'http://localhost:8000']
+

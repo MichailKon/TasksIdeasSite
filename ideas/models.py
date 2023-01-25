@@ -18,10 +18,6 @@ class IdeaTag(models.Model):
         return self.tag
 
 
-def return_user_username(self: User):
-    return self.username
-
-
 class Idea(models.Model):
     title = models.TextField(verbose_name='Название')
     content = models.TextField(verbose_name='Идея')
@@ -43,5 +39,8 @@ class Idea(models.Model):
         return reverse('idea-detail', kwargs={'pk': self.pk})
 
 
-if __name__ == '__main__':
-    User.add_to_class("__str__", return_user_username)
+def user_str(self: User):
+    return f'{self.profile.name} {self.profile.lastname} ({self.username})'
+
+
+User.add_to_class("__str__", user_str)
