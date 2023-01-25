@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 import mimetypes
+import json
 
 mimetypes.add_type("text/css", ".css", True)
 
@@ -80,9 +81,13 @@ WSGI_APPLICATION = 'django_ideas_site.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "myproject",
+        "USER": "myprojectuser",
+        "PASSWORD": "password",
+        "HOST": "localhost",
+        "PORT": ""
     }
 }
 
@@ -136,4 +141,3 @@ LOGIN_URL = 'login'
 # )
 
 CSRF_TRUSTED_ORIGINS = ['https://perveevm.ru', 'http://localhost:8000']
-
