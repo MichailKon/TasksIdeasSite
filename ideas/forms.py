@@ -22,9 +22,9 @@ class FilterForm(Form):
         authors = kwargs.pop('authors') if 'authors' in kwargs else None
         super().__init__(*args, **kwargs)
         if title_contains:
-            self.fields['title_contains'].text = title_contains
+            self.fields['title_contains'].initial = title_contains
         if content_contains:
-            self.fields['content_contains'].text = title_contains
+            self.fields['content_contains'].initial = content_contains
         if idea_type:
             self.fields['type'].initial = idea_type
         if tags:
