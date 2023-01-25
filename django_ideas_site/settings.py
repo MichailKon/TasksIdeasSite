@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ws5!2n9usnza8@fg8ai3szr_$0%+=14y-)u=78$o%8ua=&$dr*'
+SECRET_KEY = open('secret_key.txt').read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -81,14 +81,7 @@ WSGI_APPLICATION = 'django_ideas_site.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "myproject",
-        "USER": "myprojectuser",
-        "PASSWORD": "password",
-        "HOST": "localhost",
-        "PORT": ""
-    }
+    "default": json.load(open('db_config.json'))
 }
 
 # Password validation
