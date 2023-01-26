@@ -4,6 +4,8 @@ from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
@@ -50,15 +52,24 @@ def render_home(request):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class IdeaDetailView(DetailView):
+class IdeaDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Idea
+
+    def test_func(self):
+        idea: Idea = self.get_object()
+        user: User = self.request.user
+        return user.is_staff or user in idea.users_can_edit.all() or \
+            user in idea.users_can_view.all() or user == idea.real_author
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class IdeaCreateView(CreateView):
+class IdeaCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Idea
     form_class = AddIdeaForm
     template_name = 'ideas/idea_form.html'
+
+    def test_func(self):
+        return self.request.user.is_authenticated
 
     def form_valid(self, form):
         form.instance.real_author = self.request.user
