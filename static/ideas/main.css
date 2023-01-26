@@ -77,29 +77,6 @@ a.idea-title:hover {
     white-space: pre-line;
 }
 
-.article-img {
-    height: 61px;
-    width: 61px;
-    margin-right: 16px;
-}
-
-.article-metadata {
-    padding-bottom: 1px;
-    margin-bottom: 4px;
-    border-bottom: 1px solid #e3e3e3
-}
-
-.article-metadata a:hover {
-    color: #333;
-    text-decoration: none;
-}
-
-.article-svg {
-    width: 21px;
-    height: 21px;
-    vertical-align: middle;
-}
-
 .account-img {
     height: 121px;
     width: 121px;
@@ -144,6 +121,7 @@ footer a:hover {
     /*background-color: white;*/
     border: 1px solid #dddddd;
     border-radius: 3px;
+    margin-bottom: 15px;
 }
 
 .media-body {
