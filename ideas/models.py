@@ -20,6 +20,7 @@ class IdeaTag(models.Model):
 
 class IdeaStatus(models.Model):
     status = models.CharField(max_length=100)
+    color = models.CharField(max_length=100)
 
     def __str__(self):
         return self.status

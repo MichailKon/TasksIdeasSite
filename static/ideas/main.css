@@ -1,3 +1,24 @@
+.content-section {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1px;
+    column-gap: 1px;
+    gap: 1px;
+}
+
+.task-status {
+    padding: 0 20px;
+}
+
+div.idea-info-body > p {
+    margin: 0;
+    display: inline-flex;
+}
+
+.media-body > h2 {
+    margin: 0;
+}
+
 body,
 html {
     width: 100%;
@@ -36,30 +57,29 @@ ul {
     font-weight: 500;
 }
 
-.content-section {
-    background: #ffffff;
+.media-body {
+    background: white;
     padding: 10px 20px;
-    border: 1px solid #dddddd;
-    border-radius: 3px;
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
 }
 
-.article-title {
+.idea-title {
     color: #444444;
 }
 
-a.article-title:hover {
+a.idea-title:hover {
     color: #428bca;
     text-decoration: none;
 }
 
-.article-content {
+.idea-content {
+    margin: 5px;
     white-space: pre-line;
 }
 
 .article-img {
-    height: 65px;
-    width: 65px;
+    height: 61px;
+    width: 61px;
     margin-right: 16px;
 }
 
@@ -75,14 +95,14 @@ a.article-title:hover {
 }
 
 .article-svg {
-    width: 25px;
-    height: 25px;
+    width: 21px;
+    height: 21px;
     vertical-align: middle;
 }
 
 .account-img {
-    height: 125px;
-    width: 125px;
+    height: 121px;
+    width: 121px;
     margin-right: 20px;
     margin-bottom: 16px;
 }
@@ -94,8 +114,8 @@ a.article-title:hover {
 footer {
     position: sticky !important;
     top: 100%;
-    padding-top: 25px;
-    padding-bottom: 25px;
+    padding-top: 21px;
+    padding-bottom: 21px;
     border-top: 1px solid #ddd;
 }
 
@@ -118,4 +138,19 @@ footer a:hover {
 
 .btn-primary {
     margin-bottom: 20px;
+}
+
+.media {
+    /*background-color: white;*/
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+}
+
+.media-body {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1px;
+    column-gap: 1px;
+    gap: 1px;
+    height: 100%;
 }

@@ -2,6 +2,12 @@
 {% block content %}
     <h2 class="solar-red">Вы просматриваете конкретную идею</h2>
     <article class="media content-section">
+        {% if idea.status %}
+            <small class="text-muted task-status"
+                   style="background-color: {{ idea.status.color }}">Статус: {{ idea.status }}</small>
+        {% else %}
+            <small class="text-muted task-status">Статус:</small>
+        {% endif %}
         <div class="media-body">
             {% if user in object.users_can_edit.all or user.is_staff or object.real_author == user %}
                 <div class="article-metadata">
@@ -11,31 +17,35 @@
                     </div>
                 </div>
             {% endif %}
-            {% if idea.status %}
-                <small class="text-muted">Статус: {{ idea.status }}</small>
-            {% else %}
-                <small class="text-muted">Статус:</small>
-            {% endif %}
-            <h2 class="article-title">{{ object.title }}</h2>
-            <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
-            <br>
-            <small class="text-muted">Дата идеи: {{ idea.date_posted|date:"M d, Y" }}</small>
-            <p class="article-content">{{ object.content }}</p>
-            {% if not idea.type %}
-                <small class="text-muted">Тип: </small>
-            {% else %}
-                <small class="text-muted">Тип: {{ idea.type }}</small>
-            {% endif %}
-            <br>
-            <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
-            <br>
-            <small class="text-muted">Авторы: {{ idea.authors.all|join:", " }}</small>
-            <br>
-            <small class="text-muted">Кто видит: {{ idea.users_can_view.all|join:", " }}</small>
-            <br>
-            <small class="text-muted">Кто может менять: {{ idea.users_can_edit.all|join:", " }}</small>
-            <br>
-            <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
+            <div class="idea-info-body">
+                <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
+                <br>
+                <small class="text-muted">Дата записи: {{ idea.date_posted|date:"M d, Y" }}</small>
+            </div>
+
+            <h2 class="idea-title">{{ object.title }}</h2>
+
+            <p class="idea-content">{{ idea.content }}</p>
+
+            <hr>
+
+            <div class="idea-info-body">
+                {% if not idea.type %}
+                    <small class="text-muted">Тип: </small>
+                {% else %}
+                    <small class="text-muted">Тип: {{ idea.type }}</small>
+                {% endif %}
+                <br>
+                <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
+                <br>
+                <small class="text-muted">Авторы: {{ idea.authors.all|join:", " }}</small>
+                <br>
+                <small class="text-muted">Кто видит: {{ idea.users_can_view.all|join:", " }}</small>
+                <br>
+                <small class="text-muted">Кто может менять: {{ idea.users_can_edit.all|join:", " }}</small>
+                <br>
+                <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
+            </div>
         </div>
     </article>
 {% endblock content %}
