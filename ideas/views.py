@@ -1,20 +1,60 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import render
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-from django.db.models import Q
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
 
 
 def is_valid_param(param):
-    if param is None or param in ['', []]:
+    if param is None:
         return False
-    return any(map(lambda x: x, param))
+    return any(map(bool, param))
+
+
+class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Idea
+    template_name = 'ideas/home.html'
+    context_object_name = 'ideas'
+    paginate_by = 50
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        p = Paginator(self.object_list, context.get('paginate_by', self.paginate_by))
+        context['ideas'] = p.page(context['page_obj'].number)
+        context['paginator'] = p
+        return context | {'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
+                          'form_filter': FilterForm(initial=self.request.GET)}
+
+    def get_queryset(self):
+        user = self.request.user
+        parameters = self.request.GET
+        result = Idea.objects
+        if is_valid_param(parameters.get('type')):
+            result = result.filter(type=parameters.get('type'))
+        if is_valid_param(parameters.getlist('authors')):
+            result = result.filter(authors__in=filter(bool, parameters.getlist('authors', [])))
+        if is_valid_param(parameters.getlist('tags')):
+            result = result.filter(tags__in=filter(bool, parameters.getlist('tags', [])))
+        if is_valid_param(parameters.get('title_contains')):
+            result = result.filter(title__icontains=parameters.get('title_contains'))
+        if is_valid_param(parameters.get('content_contains')):
+            result = result.filter(content__icontains=parameters.get('content_contains'))
+        if is_valid_param(parameters.get('status')):
+            result = result.filter(status=parameters.get('status'))
+        if not user.is_staff:
+            result = result.filter(Q(users_can_view__in=[user.id]) | Q(real_author=user.id))
+        result = result.distinct()
+        result = result.order_by("-date_update")
+        return result.all()
+
+    def test_func(self):
+        return self.request.user.is_authenticated
 
 
 @csrf_exempt
