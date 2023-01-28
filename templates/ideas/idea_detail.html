@@ -1,7 +1,7 @@
 {% extends "ideas/base.html" %}
 {% block content %}
     <h2 class="solar-red">Вы просматриваете конкретную идею</h2>
-    {% if user not in idea.users_can_view.all and user not in idea.users_can_edit.all and not user.is_staff and  idea.real_author != user %}
+    {% if user not in idea.users_can_view.all and user not in idea.users_can_edit.all and not user.is_staff and idea.real_author != user %}
         <h1>У вас нет прав на просмотр этой идеи</h1>
     {% else %}
         <article class="media content-section">
