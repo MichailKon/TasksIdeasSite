@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'ideas.apps.IdeasConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
-    'django_select2'
+    'django_select2',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

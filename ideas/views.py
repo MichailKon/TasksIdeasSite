@@ -2,10 +2,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
@@ -17,6 +17,29 @@ def is_valid_param(param):
     return any(map(bool, param))
 
 
+class IdeaListSerializer(ModelSerializer):
+    content_shorted = SerializerMethodField()
+
+    class Meta:
+        model = Idea
+        fields = '__all__'
+
+    def get_content_shorted(self, obj: Idea):
+        if len(obj.content) < 550:
+            return obj.content
+        res = ''
+        cnt = 0
+        add_ellipsis = False
+        for num, i in enumerate(obj.content):
+            if i == '$':
+                cnt ^= 1
+            res += i
+            if num >= 500 and cnt == 0 or num >= 700:
+                add_ellipsis = num + 1 != len(obj.content)
+                break
+        return res + ('...' if add_ellipsis else '')
+
+
 class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Idea
     template_name = 'ideas/home.html'
@@ -26,8 +49,8 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         p = Paginator(self.object_list, context.get('paginate_by', self.paginate_by))
-        context['ideas'] = p.page(context['page_obj'].number)
         context['paginator'] = p
+        context['ideas'] = IdeaListSerializer(p.page(context['page_obj'].number), many=True).data
         return context | {'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
                           'form_filter': FilterForm(initial=self.request.GET)}
 
@@ -55,40 +78,6 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         return self.request.user.is_authenticated
-
-
-@csrf_exempt
-def render_home(request):
-    parameters = request.GET
-    result = Idea.objects
-    filter_form_params = {}
-    if is_valid_param(parameters.get('type')):
-        result = result.filter(type=parameters.get('type'))
-        filter_form_params['type'] = parameters.get('type')
-    if is_valid_param(parameters.getlist('authors')):
-        result = result.filter(authors__in=filter(lambda x: x, parameters.getlist('authors', []))).distinct()
-        filter_form_params['authors'] = list(filter(lambda x: x, parameters.getlist('authors', [])))
-    if is_valid_param(parameters.getlist('tags')):
-        result = result.filter(tags__in=filter(lambda x: x, parameters.getlist('tags', []))).distinct()
-        filter_form_params['tags'] = list(filter(lambda x: x, parameters.getlist('tags', [])))
-    if is_valid_param(parameters.get('title_contains')):
-        result = result.filter(title__icontains=parameters.get('title_contains'))
-        filter_form_params['title_contains'] = parameters.get('title_contains')
-    if is_valid_param(parameters.get('content_contains')):
-        result = result.filter(content__icontains=parameters.get('content_contains'))
-        filter_form_params['content_contains'] = parameters.get('content_contains')
-    if is_valid_param(parameters.get('status')):
-        result = result.filter(status=parameters.get('status'))
-        filter_form_params['status'] = parameters.get('status')
-    if not request.user.is_authenticated:
-        result = Idea.objects.none()
-    elif not request.user.is_staff:
-        result = result.filter(Q(users_can_view__in=[request.user.id]) | Q(real_author=request.user.id)).distinct()
-    result = result.order_by("-date_update")
-    form = FilterForm(**filter_form_params)
-    return render(request, 'ideas/home.html',
-                  {'ideas': result.all(), 'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
-                   'form_filter': form})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
