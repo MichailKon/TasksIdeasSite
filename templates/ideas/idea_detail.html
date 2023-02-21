@@ -29,6 +29,21 @@
 
                 <p class="idea-content">{{ idea.content }}</p>
 
+                {#                <hr>#}
+
+                <p>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#editorial" aria-expanded="false" aria-controls="editorial">
+                        Идея решения
+                    </button>
+                </p>
+
+                <div class="collapse" id="editorial">
+                    <div class="card card-body">
+                        {{ idea.short_editorial }}
+                    </div>
+                </div>
+
                 <hr>
 
                 <div class="idea-info-body">

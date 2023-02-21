@@ -19,12 +19,54 @@ def is_valid_param(param):
 
 class IdeaListSerializer(ModelSerializer):
     content_shorted = SerializerMethodField()
+    tags_list = SerializerMethodField()
+    type_name = SerializerMethodField()
+    authors_list = SerializerMethodField()
+    status_name = SerializerMethodField()
+    status_color = SerializerMethodField()
+    date_posted = SerializerMethodField()
+    date_update = SerializerMethodField()
 
     class Meta:
         model = Idea
         fields = '__all__'
 
-    def get_content_shorted(self, obj: Idea):
+    @staticmethod
+    def get_date_update(obj: Idea):
+        return obj.date_update
+
+    @staticmethod
+    def get_date_posted(obj: Idea):
+        return obj.date_posted
+
+    @staticmethod
+    def get_status_color(obj: Idea):
+        if not obj.status:
+            return ''
+        return obj.status.color
+
+    @staticmethod
+    def get_status_name(obj: Idea):
+        if not obj.status:
+            return ''
+        return str(obj.status)
+
+    @staticmethod
+    def get_authors_list(obj: Idea):
+        return ', '.join(str(i) for i in obj.authors.all())
+
+    @staticmethod
+    def get_type_name(obj: Idea):
+        if not obj.type:
+            return ''
+        return obj.type.type
+
+    @staticmethod
+    def get_tags_list(obj: Idea):
+        return ', '.join(i.tag for i in obj.tags.all())
+
+    @staticmethod
+    def get_content_shorted(obj: Idea):
         if len(obj.content) < 550:
             return obj.content
         res = ''
@@ -110,6 +152,11 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Idea
     form_class = UpdateIdeaForm
     template_name = 'ideas/idea_update.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(IdeaUpdateView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
     def form_valid(self, form):
         return super().form_valid(form)
