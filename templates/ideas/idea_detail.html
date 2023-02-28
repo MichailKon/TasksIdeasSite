@@ -1,4 +1,5 @@
 {% extends "ideas/base.html" %}
+{% load crispy_forms_filters %}
 {% block content %}
     <h2 class="solar-red">Вы просматриваете конкретную идею</h2>
     {% if user not in idea.users_can_view.all and user not in idea.users_can_edit.all and not user.is_staff and idea.real_author != user %}
@@ -28,8 +29,6 @@
                 <h2 class="idea-title">{{ idea.title }}</h2>
 
                 <p class="idea-content">{{ idea.content }}</p>
-
-                {#                <hr>#}
 
                 <p>
                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
@@ -65,5 +64,22 @@
                 </div>
             </div>
         </article>
+        <div id="comments">
+            Добавить комментарий:
+
+            <form method="post">
+                {% csrf_token %}
+                {{ comment_form|crispy }}
+                <br>
+                <input type="submit" class="btn btn-primary" value="Оставить комментарий">
+            </form>
+
+            {% for comment in comments %}
+                <small><a href="">{{ comment.author }}</a> at {{ comment.date_posted|date:"M d, Y" }}</small>
+                <article id="{{ comment.id }}" class="card comment" style="background-color: white">
+                    {{ comment.text }}
+                </article>
+            {% endfor %}
+        </div>
     {% endif %}
 {% endblock content %}
