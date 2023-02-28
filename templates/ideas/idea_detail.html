@@ -75,7 +75,8 @@
             </form>
 
             {% for comment in comments %}
-                <small><a href="">{{ comment.author }}</a> at {{ comment.date_posted|date:"M d, Y" }}</small>
+                <small><a href="{% url 'profile-idea-list-view' comment.author.id %}">{{ comment.author }}</a>
+                    at {{ comment.date_posted|date:"M d, Y" }}</small>
                 <article id="{{ comment.id }}" class="card comment" style="background-color: white">
                     {{ comment.text }}
                 </article>
