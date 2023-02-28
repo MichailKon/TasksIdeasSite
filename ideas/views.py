@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
@@ -180,3 +181,16 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
             return True
         return False
+
+
+def profile_ideas_list_view(request, pk: int):
+    request_user = request.user
+    template_name = 'ideas/profile_idea_list.html'
+    user = get_object_or_404(User, pk=pk)
+    ideas = Idea.objects.filter(real_author=user)
+    if not request_user.is_staff:
+        ideas = ideas.filter(
+            Q(users_can_view__in=[request_user.id]) | Q(users_can_edit__in=[request_user.id]))
+    ideas = IdeaListSerializer(ideas, many=True).data
+    return render(request, template_name, {'user': user,
+                                           'ideas': ideas})

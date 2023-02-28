@@ -1,0 +1,28 @@
+{% for idea in ideas %}
+    <article class="media content-section">
+        <small class="text-muted task-status"
+               style="background-color: {{ idea.status_color }}">Статус: {{ idea.status_name }}</small>
+        <div class="media-body">
+            <div class="idea-info-body">
+                <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
+                <br>
+                <p><small class="text-muted">Дата записи: {{ idea.date_posted|date:"M d, Y" }}</small></p>
+            </div>
+
+            <h2><a class="idea-title" href="{% url 'idea-detail' idea.id %}">{{ idea.title }}</a></h2>
+
+            <p class="idea-content">{{ idea.content_shorted }}</p>
+
+            <hr>
+
+            <div class="idea-info-body">
+                <small class="text-muted">Тип: {{ idea.type_name }}</small>
+                <br>
+                <small class="text-muted">Теги: {{ idea.tags_list }}</small>
+                <br>
+                <small class="text-muted">Авторы: {{ idea.authors_list }}</small>
+                <br>
+            </div>
+        </div>
+    </article>
+{% endfor %}

@@ -42,6 +42,9 @@ class Idea(models.Model):
     status = models.ForeignKey(IdeaStatus, on_delete=models.SET_DEFAULT, default=None, null=True, verbose_name='Статус')
     short_editorial = models.TextField(verbose_name='Идея решения', default='')
 
+    class Meta:
+        ordering = ['-date_update', ]
+
     def __str__(self):
         return self.content
 
