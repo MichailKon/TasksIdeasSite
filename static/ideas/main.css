@@ -1,3 +1,9 @@
+.comment {
+    background-color: white;
+    margin: 5px;
+    padding: 5px;
+}
+
 .content-section {
     display: flex;
     flex-direction: column;

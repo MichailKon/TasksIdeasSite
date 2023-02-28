@@ -49,6 +49,13 @@ class Idea(models.Model):
         return reverse('idea-detail', kwargs={'pk': self.pk})
 
 
+class Comment(models.Model):
+    text = models.TextField(verbose_name='Текст', null=False)
+    date_posted = models.DateTimeField(verbose_name='Дата комментария', auto_now=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)  # Maybe I need verbose name, but IDK what to write here :(
+
+
 def user_str(self: User):
     return f'{self.profile.name} {self.profile.lastname} ({self.username})'
 

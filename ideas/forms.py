@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelChoiceField, Form, IntegerField, HiddenInput
 from django_select2.forms import Select2MultipleWidget
 
-from .models import IdeaTag, IdeaType, Idea, IdeaStatus
+from .models import IdeaTag, IdeaType, Idea, IdeaStatus, Comment
 
 
 class FilterForm(Form):
@@ -23,7 +23,9 @@ class FilterForm(Form):
 class UpdateIdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
-        fields = ('title', 'content', 'short_editorial', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit', 'status')
+        fields = (
+            'title', 'content', 'short_editorial', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit',
+            'status')
         widgets = {
             'tags': Select2MultipleWidget,
             'authors': Select2MultipleWidget,
@@ -48,7 +50,9 @@ class UpdateIdeaForm(forms.ModelForm):
 class AddIdeaForm(forms.ModelForm):
     class Meta:
         model = Idea
-        fields = ('title', 'content', 'short_editorial', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit', 'status')
+        fields = (
+            'title', 'content', 'short_editorial', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit',
+            'status')
         widgets = {
             'tags': Select2MultipleWidget,
             'authors': Select2MultipleWidget,
@@ -65,3 +69,13 @@ class AddIdeaForm(forms.ModelForm):
         self.fields['users_can_edit'].required = False
         self.fields['status'].required = False
         self.fields['short_editorial'].required = False
+
+
+class AddCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('text',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].label = ''

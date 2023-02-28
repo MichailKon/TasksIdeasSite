@@ -2,13 +2,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
-from .models import Idea, IdeaType, IdeaTag
+from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm
+from .models import Idea, IdeaType, IdeaTag, Comment
 
 
 def is_valid_param(param):
@@ -122,9 +123,33 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_authenticated
 
 
+def idea_detail_view(request, pk):
+    template_name = 'ideas/idea_detail.html'
+    idea = get_object_or_404(Idea, pk=pk)
+    comments = idea.comment_set.all()
+    if request.method == 'POST':
+        comment_form = AddCommentForm(data=request.POST)
+        if comment_form.is_valid():
+            new_comment: Comment = comment_form.save(commit=False)
+            new_comment.idea = idea
+            new_comment.author = request.user
+            new_comment.save()
+
+    return render(request, template_name, {'idea': idea,
+                                           'user': request.user,
+                                           'comments': comments,
+                                           'comment_form': AddCommentForm()})
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class IdeaDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Idea
+
+    def get_context_data(self, **kwargs):
+        idea: Idea = self.get_object()
+        context = super().get_context_data(**kwargs)
+        return context | {'comments': Comment.objects.filter(idea=idea.id).all(),
+                          'comment_form': AddCommentForm()}
 
     def test_func(self):
         idea: Idea = self.get_object()
