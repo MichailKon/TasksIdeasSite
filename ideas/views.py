@@ -197,7 +197,7 @@ def profile_ideas_list_view(request, pk: int):
     ideas = Idea.objects.filter(real_author=user)
     if not request_user.is_staff:
         ideas = ideas.filter(
-            Q(users_can_view__in=[request_user.id]) | Q(users_can_edit__in=[request_user.id]))
+            Q(users_can_view__in=[request_user.id]) | Q(users_can_edit__in=[request_user.id]) | Q(real_author=user))
     ideas = IdeaListSerializer(ideas, many=True).data
     return render(request, template_name, {'user': user,
                                            'ideas': ideas})
