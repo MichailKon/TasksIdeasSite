@@ -58,6 +58,9 @@ class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE)  # Maybe I need verbose name, but IDK what to write here :(
 
+    class Meta:
+        ordering = ['date_posted', ]
+
 
 def user_str(self: User):
     return f'{self.profile.name} {self.profile.lastname} ({self.username})'

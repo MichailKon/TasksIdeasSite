@@ -65,14 +65,20 @@
             </div>
         </article>
         <div id="comments">
-            Добавить комментарий:
 
-            <form method="post">
-                {% csrf_token %}
-                {{ comment_form|crispy }}
-                <br>
-                <input type="submit" class="btn btn-primary" value="Оставить комментарий">
-            </form>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#leave-comment" aria-expanded="false" aria-controls="leave-comment">
+                Добавить комментарий
+            </button>
+            <div class="collapse" id="leave-comment">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ comment_form|crispy }}
+                    <br>
+                    <input type="submit" class="btn btn-success" value="Оставить комментарий">
+                </form>
+            </div>
+            <br>
 
             {% for comment in comments %}
                 <small><a href="{% url 'profile-idea-list-view' comment.author.id %}">{{ comment.author }}</a>

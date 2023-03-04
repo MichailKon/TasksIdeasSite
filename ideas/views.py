@@ -2,10 +2,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic.edit import FormMixin
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm
@@ -94,12 +95,15 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         p = Paginator(self.object_list, context.get('paginate_by', self.paginate_by))
         context['paginator'] = p
         context['ideas'] = IdeaListSerializer(p.page(context['page_obj'].number), many=True).data
-        return context | {'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all(),
-                          'form_filter': FilterForm(initial=self.request.GET)}
+        context |= {'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all()}
+        if 'form_filter' not in context:
+            context |= {'form_filter': FilterForm(initial=self.request.GET)}
+        return context
 
     def get_queryset(self):
         user = self.request.user
         parameters = self.request.GET
+        print(parameters)
         result = Idea.objects
         if is_valid_param(parameters.get('type')):
             result = result.filter(type=parameters.get('type'))
@@ -123,22 +127,53 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_authenticated
 
 
-def idea_detail_view(request, pk):
-    template_name = 'ideas/idea_detail.html'
-    idea = get_object_or_404(Idea, pk=pk)
-    comments = idea.comment_set.all()
+def handle_leave_comment_view(request):
+    user = request.user
     if request.method == 'POST':
-        comment_form = AddCommentForm(data=request.POST)
-        if comment_form.is_valid():
-            new_comment: Comment = comment_form.save(commit=False)
-            new_comment.idea = idea
-            new_comment.author = request.user
-            new_comment.save()
+        pass
+    return redirect('ideas-home')
 
-    return render(request, template_name, {'idea': idea,
-                                           'user': request.user,
-                                           'comments': comments,
-                                           'comment_form': AddCommentForm()})
+
+class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Idea
+    form_class = AddCommentForm
+    template_name = 'ideas/idea_detail.html'
+
+    def test_func(self):
+        idea = self.get_object()
+        user = self.request.user
+        if user in idea.users_can_edit.all() or \
+                user.is_staff or \
+                idea.real_author == user or \
+                user in idea.users_can_view.all():
+            return True
+        return False
+
+    def get_success_url(self):
+        self.object: Idea
+        return reverse('idea-detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = self.get_form()
+        self.object: Idea
+        context['comments'] = self.object.comment_set.all()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        myform = form.save(commit=False)
+        myform.author = self.request.user
+        myform.idea = self.get_object()
+        form.save()
+        return super().form_valid(form)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -188,16 +223,3 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
             return True
         return False
-
-
-def profile_ideas_list_view(request, pk: int):
-    request_user = request.user
-    template_name = 'ideas/profile_idea_list.html'
-    user = get_object_or_404(User, pk=pk)
-    ideas = Idea.objects.filter(real_author=user)
-    if not request_user.is_staff:
-        ideas = ideas.filter(
-            Q(users_can_view__in=[request_user.id]) | Q(users_can_edit__in=[request_user.id]) | Q(real_author=user))
-    ideas = IdeaListSerializer(ideas, many=True).data
-    return render(request, template_name, {'user': user,
-                                           'ideas': ideas})
