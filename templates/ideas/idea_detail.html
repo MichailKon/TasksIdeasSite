@@ -79,7 +79,7 @@
         <br>
 
         {% for comment in comments %}
-            <small><a href="{% url 'ideas-home' comment.author.id %}">{{ comment.author }}</a>
+            <small><a href="{% url 'ideas-home' %}">{{ comment.author }}</a>
                 at {{ comment.date_posted|date:"M d, Y" }}</small>
             <article id="{{ comment.id }}" class="card comment" style="background-color: white">
                 {{ comment.text }}
