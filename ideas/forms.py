@@ -33,7 +33,7 @@ class UpdateIdeaForm(forms.ModelForm):
             'users_can_edit': Select2MultipleWidget,
             'groups_access': Select2MultipleWidget,
         }
-
+        
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
@@ -45,7 +45,7 @@ class UpdateIdeaForm(forms.ModelForm):
         self.fields['groups_access'].required = False
         self.fields['short_editorial'].required = False
         self.fields['status'].required = False
-        if request.user is None or not request.user.is_staff:
+        if request is None or (request.user is None or not request.user.is_staff):
             self.fields['status'].widget = HiddenInput()
 
 
@@ -54,7 +54,7 @@ class AddIdeaForm(forms.ModelForm):
         model = Idea
         fields = (
             'title', 'content', 'short_editorial', 'type', 'tags', 'authors', 'users_can_view', 'users_can_edit',
-            'groups_access', 'status')
+            'groups_access')
         widgets = {
             'tags': Select2MultipleWidget,
             'authors': Select2MultipleWidget,
@@ -64,7 +64,6 @@ class AddIdeaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.get('request', None)
         super().__init__(*args, **kwargs)
         self.fields['type'].required = False
         self.fields['tags'].required = False
@@ -72,10 +71,7 @@ class AddIdeaForm(forms.ModelForm):
         self.fields['users_can_view'].required = False
         self.fields['users_can_edit'].required = False
         self.fields['groups_access'].required = False
-        self.fields['status'].required = False
         self.fields['short_editorial'].required = False
-        if request is not None and (request.user is None or not request.user.is_staff):
-            self.fields['status'].widget = HiddenInput()
 
 
 class AddCommentForm(forms.ModelForm):

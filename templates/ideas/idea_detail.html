@@ -58,6 +58,9 @@
                 <br>
                 <small class="text-muted">Кто может менять: {{ idea.users_can_edit.all|join:", " }}</small>
                 <br>
+                <small class="text-muted">Группы пользователей с
+                    доступом: {{ idea.groups_access.all|join:", " }}</small>
+                <br>
                 <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
             </div>
         </div>
