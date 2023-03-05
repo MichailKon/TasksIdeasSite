@@ -64,7 +64,7 @@ class AddIdeaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request')
+        request = kwargs.get('request', None)
         super().__init__(*args, **kwargs)
         self.fields['type'].required = False
         self.fields['tags'].required = False
@@ -74,7 +74,7 @@ class AddIdeaForm(forms.ModelForm):
         self.fields['groups_access'].required = False
         self.fields['status'].required = False
         self.fields['short_editorial'].required = False
-        if request.user is None or not request.user.is_staff:
+        if request is not None and (request.user is None or not request.user.is_staff):
             self.fields['status'].widget = HiddenInput()
 
 
