@@ -372,3 +372,7 @@ poetry.toml
 
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,django
+
+static/admin/*
+static/django_select2/*
+static/rest_framework/*

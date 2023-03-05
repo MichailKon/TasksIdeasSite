@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib import auth
 
 
 class Profile(models.Model):
@@ -13,6 +12,14 @@ class Profile(models.Model):
 
     def save(self, **kwargs):
         super().save(**kwargs)
+
+
+class UserGroup(models.Model):
+    name = models.CharField(max_length=200, blank=False)
+    users = models.ManyToManyField(User, verbose_name='Пользователи в группе')
+
+    def __str__(self):
+        return f'{self.name} (Группа пользователей)'
 
 
 def user_str(self: User):

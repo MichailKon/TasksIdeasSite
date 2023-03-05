@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from users.models import UserGroup
 
 
 class IdeaType(models.Model):
@@ -39,6 +40,7 @@ class Idea(models.Model):
                                             related_name='idea2person_view')
     users_can_edit = models.ManyToManyField(User, verbose_name='Пользователи, которые могут редактировать',
                                             related_name='idea2person_edit')
+    groups_access = models.ManyToManyField(UserGroup, verbose_name='Группы пользователей, которые могут редактировать')
     status = models.ForeignKey(IdeaStatus, on_delete=models.SET_DEFAULT, default=None, null=True, verbose_name='Статус')
     short_editorial = models.TextField(verbose_name='Идея решения', default='')
 

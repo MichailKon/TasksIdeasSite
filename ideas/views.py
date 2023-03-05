@@ -1,16 +1,29 @@
+from copy import deepcopy
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render, redirect, reverse
+from django.shortcuts import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.views.generic.edit import FormMixin
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
+from users.models import UserGroup
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm
-from .models import Idea, IdeaType, IdeaTag, Comment
+from .models import Idea, IdeaType, IdeaTag
+
+
+def general_test_func(idea, user, check_read=True):  # self because it was in every other test function
+    if user.is_staff or \
+            idea.real_author == user or \
+            user in idea.users_can_edit.all() or \
+            any(user in rel.users.all() for rel in idea.groups_access.all()):
+        return True
+    if check_read and user in idea.users_can_view.all():
+        return True
+    return False
 
 
 def is_valid_param(param):
@@ -97,13 +110,16 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['ideas'] = IdeaListSerializer(p.page(context['page_obj'].number), many=True).data
         context |= {'types': IdeaType.objects.all(), 'tags': IdeaTag.objects.all()}
         if 'form_filter' not in context:
-            context |= {'form_filter': FilterForm(initial=self.request.GET)}
+            init = deepcopy(self.request.GET)
+            init['authors'] = init.getlist('authors', [])
+            init['tags'] = init.getlist('tags', [])
+
+            context |= {'form_filter': FilterForm(initial=init)}
         return context
 
     def get_queryset(self):
         user = self.request.user
         parameters = self.request.GET
-        print(parameters)
         result = Idea.objects
         if is_valid_param(parameters.get('type')):
             result = result.filter(type=parameters.get('type'))
@@ -118,7 +134,11 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if is_valid_param(parameters.get('status')):
             result = result.filter(status=parameters.get('status'))
         if not user.is_staff:
-            result = result.filter(Q(users_can_view__in=[user.id]) | Q(real_author=user.id))
+            user_groups = user.usergroup_set.all()
+            result = result.filter(Q(users_can_view__in=[user.id]) |
+                                   Q(real_author=user.id) |
+                                   Q(users_can_edit__in=[user.id]) |
+                                   Q(groups_access__in=user_groups))
         result = result.distinct()
         result = result.order_by("-date_update")
         return result.all()
@@ -127,27 +147,13 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_authenticated
 
 
-def handle_leave_comment_view(request):
-    user = request.user
-    if request.method == 'POST':
-        pass
-    return redirect('ideas-home')
-
-
 class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Idea
     form_class = AddCommentForm
     template_name = 'ideas/idea_detail.html'
 
     def test_func(self):
-        idea = self.get_object()
-        user = self.request.user
-        if user in idea.users_can_edit.all() or \
-                user.is_staff or \
-                idea.real_author == user or \
-                user in idea.users_can_view.all():
-            return True
-        return False
+        return general_test_func(self.get_object(), self.request.user)
 
     def get_success_url(self):
         self.object: Idea
@@ -156,8 +162,8 @@ class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = self.get_form()
-        self.object: Idea
         context['comments'] = self.object.comment_set.all()
+        context['user_can_edit'] = general_test_func(self.get_object(), self.request.user, check_read=False)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -205,11 +211,7 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def test_func(self):
-        idea = self.get_object()
-        user = self.request.user
-        if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
-            return True
-        return False
+        return general_test_func(self.get_object(), self.request.user, check_read=False)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -218,8 +220,4 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = '/'
 
     def test_func(self):
-        idea = self.get_object()
-        user = self.request.user
-        if user in idea.users_can_edit.all() or user.is_staff or idea.real_author == user:
-            return True
-        return False
+        return general_test_func(self.get_object(), self.request.user, check_read=False)
