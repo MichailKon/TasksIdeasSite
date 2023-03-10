@@ -1,3 +1,12 @@
+.button-add-comment {
+    margin: 0 10px;
+}
+
+.idea-editorial {
+    margin-bottom: 0;
+    white-space: pre;
+}
+
 .comment-text {
     margin: 5px;
     justify-content: space-between;
@@ -143,7 +152,7 @@ footer a:hover {
     /*background-color: white;*/
     border: 1px solid #dddddd;
     border-radius: 3px;
-    margin-bottom: 15px;
+    /*margin-bottom: 15px;*/
 }
 
 .media-body {

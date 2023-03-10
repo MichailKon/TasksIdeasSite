@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import IdeaCreateView, IdeaDeleteView, IdeaUpdateView, IdeaListView, IdeaDetailView, \
+from .views import IdeaCreateView, IdeaDeleteView, IdeaUpdateView, IdeaListView, \
     delete_comment_by_user_request, update_comment_by_user_request, create_comment_by_user_request, idea_detail_view
 
 urlpatterns = [

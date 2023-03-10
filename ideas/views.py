@@ -160,42 +160,6 @@ def idea_detail_view(request, pk: int):
                                            'update_comment_form': UpdateCommentForm()})
 
 
-class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = Idea
-    form_class = AddCommentForm
-    template_name = 'ideas/idea_detail.html'
-
-    def test_func(self):
-        return general_test_func(self.get_object(), self.request.user)
-
-    def get_success_url(self):
-        self.object: Idea
-        return reverse('idea-detail', kwargs={'pk': self.object.pk})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comment_form'] = self.get_form()
-        context['comments'] = self.object.comment_set.all()
-        context['user_can_edit'] = general_test_func(self.get_object(), self.request.user, check_read=False)
-        # context['update_comment_form'] =
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        myform = form.save(commit=False)
-        myform.author = self.request.user
-        myform.idea = self.get_object()
-        form.save()
-        return super().form_valid(form)
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class IdeaCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Idea

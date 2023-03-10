@@ -37,50 +37,62 @@
 
             <div class="collapse" id="editorial">
                 <div class="card card-body">
-                    {{ idea.short_editorial }}
+                    <p class="idea-editorial">{{ idea.short_editorial }}</p>
                 </div>
             </div>
 
             <hr>
 
             <div class="idea-info-body">
-                {% if not idea.type %}
-                    <small class="text-muted">Тип: </small>
-                {% else %}
+                {% if idea.type %}
                     <small class="text-muted">Тип: {{ idea.type }}</small>
+                    <br>
                 {% endif %}
-                <br>
-                <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
-                <br>
-                <small class="text-muted">Авторы: {{ idea.authors.all|join:", " }}</small>
-                <br>
-                <small class="text-muted">Кто видит: {{ idea.users_can_view.all|join:", " }}</small>
-                <br>
-                <small class="text-muted">Кто может менять: {{ idea.users_can_edit.all|join:", " }}</small>
-                <br>
-                <small class="text-muted">Группы пользователей с
-                    доступом: {{ idea.groups_access.all|join:", " }}</small>
-                <br>
-                <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
+                {% if idea.tags.all %}
+                    <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.authors.all %}
+                    <small class="text-muted">Авторы: {{ idea.authors.all|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.users_can_view.all %}
+                    <small class="text-muted">Кто видит: {{ idea.users_can_view.all|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.users_can_edit.all %}
+                    <small class="text-muted">Кто может менять: {{ idea.users_can_edit.all|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.groups_access.all %}
+                    <small class="text-muted">Группы пользователей с
+                        доступом: {{ idea.groups_access.all|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.real_author.all %}
+                    <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
+                {% endif %}
             </div>
         </div>
     </article>
 
     <div id="comments">
-        <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+        <br>
+        <button class="btn btn-primary" id="button-add-comment" type="button" data-bs-toggle="collapse"
                 data-bs-target="#leave-comment" aria-expanded="false" aria-controls="leave-comment">
             Добавить комментарий
         </button>
+        <br>
+        <br>
         <div class="collapse" id="leave-comment">
-            <br>
             <form method="post" action="{% url 'comment-create' idea.pk %}">
                 {% csrf_token %}
                 {{ add_comment_form|crispy }}
                 <br>
                 <input type="submit" class="btn btn-success" value="Оставить комментарий">
             </form>
+            <br>
         </div>
-        <br>
 
         <div class="modal fade" id="delete-comment" tabindex="-1" aria-labelledby="delete-comment-label"
              aria-hidden="true">
@@ -129,15 +141,18 @@
             {% for comment in comments %}
                 <div class="full-comment" id="{{ comment.id }}">
                     <small><a href="{% url 'ideas-home' %}?authors={{ comment.author.pk }}">{{ comment.author }}</a>
-                        at {{ comment.date_posted|date:"M d, Y" }}</small>
+                        at {{ comment.date_posted|date:"M d, Y" }}
+                    </small>
                     <div class="card comment" style="background-color: white">
                         <div class="comment-text">{{ comment.text }}</div>
-                        <p>
-                            <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
-                               data-bs-text="{{ comment.text }}" data-bs-pk="{{ comment.pk }}">Ред.</a>
-                            <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
-                               data-bs-pk="{{ comment.pk }}">Удалить?</a>
-                        </p>
+                        {% if comment.author == user %}
+                            <p>
+                                <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
+                                   data-bs-text="{{ comment.text }}" data-bs-pk="{{ comment.pk }}">Ред.</a>
+                                <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
+                                   data-bs-pk="{{ comment.pk }}">Удалить?</a>
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -148,7 +163,7 @@
             commentDeleteModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget
                 const pk = button.getAttribute('data-bs-pk')
-                const submit = commentDeleteModal.querySelector('.modal-footer .btn-primary')
+                const submit = commentDeleteModal.querySelector('.modal-footer .btn-danger')
                 submit.href = '{% url 'comment-delete' 228 %}'.replace(/228/, pk)
             })
 

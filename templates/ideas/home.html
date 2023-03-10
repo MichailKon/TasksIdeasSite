@@ -2,6 +2,7 @@
 {% block content %}
     {% if user.is_authenticated %}
         <a class="btn btn-primary" href={% url 'idea-create' %}>Новая идея</a>
+        <br>
     {% endif %}
     <br>
     {% include "ideas/ideas_printer.html" %}
