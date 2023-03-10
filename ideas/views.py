@@ -1,18 +1,18 @@
 from copy import deepcopy
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import reverse
+from django.shortcuts import reverse, redirect, get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.views.generic.edit import FormMixin
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from users.models import UserGroup
-from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm
-from .models import Idea, IdeaType, IdeaTag
+from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm, UpdateCommentForm
+from .models import Idea, IdeaType, IdeaTag, Comment
 
 
 def general_test_func(idea, user, check_read=True):  # self because it was in every other test function
@@ -147,6 +147,19 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_authenticated
 
 
+def idea_detail_view(request, pk: int):
+    idea = get_object_or_404(Idea, pk=pk)
+    user = request.user
+    template_name = 'ideas/idea_detail.html'
+    if not general_test_func(idea, user, check_read=True):
+        raise PermissionDenied
+    return render(request, template_name, {'idea': idea,
+                                           'comments': idea.comment_set.all(),
+                                           'user_can_edit': general_test_func(idea, user, check_read=False),
+                                           'add_comment_form': AddCommentForm(),
+                                           'update_comment_form': UpdateCommentForm()})
+
+
 class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Idea
     form_class = AddCommentForm
@@ -164,6 +177,7 @@ class IdeaDetailView(FormMixin, LoginRequiredMixin, UserPassesTestMixin, DetailV
         context['comment_form'] = self.get_form()
         context['comments'] = self.object.comment_set.all()
         context['user_can_edit'] = general_test_func(self.get_object(), self.request.user, check_read=False)
+        # context['update_comment_form'] =
         return context
 
     def post(self, request, *args, **kwargs):
@@ -221,3 +235,45 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return general_test_func(self.get_object(), self.request.user, check_read=False)
+
+
+def delete_comment_by_user_request(request, pk: int):
+    user = request.user
+    comment = get_object_or_404(Comment, pk=pk)
+    if not (user.is_staff or comment.author == user):
+        raise PermissionDenied
+    idea = comment.idea
+    comment.delete()
+    return redirect('idea-detail', idea.pk)
+
+
+def update_comment_by_user_request(request, pk: int):
+    user = request.user
+    comment = get_object_or_404(Comment, pk=pk)
+    idea = comment.idea
+    if not general_test_func(idea, user, check_read=False):
+        raise PermissionDenied
+    if comment.author != user:
+        raise PermissionDenied
+    if request.method != 'POST':
+        return redirect('idea-detail', idea.pk)
+    form = UpdateCommentForm(request.POST)
+    if form.is_valid():
+        text = form.cleaned_data['text']
+        comment.text = text
+        comment.save()
+    return redirect('idea-detail', idea.pk)
+
+
+def create_comment_by_user_request(request, pk: int):
+    user = request.user
+    idea = get_object_or_404(Idea, pk=pk)
+    if not general_test_func(idea, user, check_read=False):
+        raise PermissionDenied
+    if request.method != 'POST':
+        return redirect('idea-detail', idea.pk)
+    form = AddCommentForm(request.POST)
+    if form.is_valid():
+        text = form.cleaned_data['text']
+        Comment(text=text, author=user, idea=idea).save()
+    return redirect('idea-detail', idea.pk)

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import ModelChoiceField, Form, IntegerField, HiddenInput, Field
+from django.forms import ModelChoiceField, Form, IntegerField, HiddenInput, Field, CharField, TextInput, Textarea
 from django_select2.forms import Select2MultipleWidget
 
 from .models import IdeaTag, IdeaType, Idea, IdeaStatus, Comment
@@ -33,7 +33,7 @@ class UpdateIdeaForm(forms.ModelForm):
             'users_can_edit': Select2MultipleWidget,
             'groups_access': Select2MultipleWidget,
         }
-        
+
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
@@ -82,3 +82,17 @@ class AddCommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['text'].label = ''
+
+
+class UpdateCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('text',)
+        widgets = {
+            'text': Textarea()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].label = ''
+        self.fields['text'].widget.attrs['class'] = 'form-control'

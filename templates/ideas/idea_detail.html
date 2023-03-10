@@ -65,28 +65,104 @@
             </div>
         </div>
     </article>
-    <div id="comments">
 
+    <div id="comments">
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
                 data-bs-target="#leave-comment" aria-expanded="false" aria-controls="leave-comment">
             Добавить комментарий
         </button>
         <div class="collapse" id="leave-comment">
-            <form method="post" action="">
+            <br>
+            <form method="post" action="{% url 'comment-create' idea.pk %}">
                 {% csrf_token %}
-                {{ comment_form|crispy }}
+                {{ add_comment_form|crispy }}
                 <br>
                 <input type="submit" class="btn btn-success" value="Оставить комментарий">
             </form>
         </div>
         <br>
 
-        {% for comment in comments %}
-            <small><a href="{% url 'ideas-home' %}">{{ comment.author }}</a>
-                at {{ comment.date_posted|date:"M d, Y" }}</small>
-            <article id="{{ comment.id }}" class="card comment" style="background-color: white">
-                {{ comment.text }}
-            </article>
-        {% endfor %}
+        <div class="modal fade" id="delete-comment" tabindex="-1" aria-labelledby="delete-comment-label"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="delete-comment-label">Удаление комментария</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Вы действительно хотите удалить комментарий?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Оставить</button>
+                        <a type="button" class="btn btn-danger">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="update-comment" tabindex="-1" aria-hidden="true"
+             aria-labelledby="update-comment-label">
+            <div class="modal-dialog" style="min-width: 50%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Редактировать комментарий</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="comment-updater" method="post">
+                            {% csrf_token %}
+                            {{ update_comment_form }}
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
+                        </button>
+                        <input type="submit" form="comment-updater" class="btn btn-success" value="Сохранить">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comments">
+            {% for comment in comments %}
+                <div class="full-comment" id="{{ comment.id }}">
+                    <small><a href="{% url 'ideas-home' %}?authors={{ comment.author.pk }}">{{ comment.author }}</a>
+                        at {{ comment.date_posted|date:"M d, Y" }}</small>
+                    <div class="card comment" style="background-color: white">
+                        <div class="comment-text">{{ comment.text }}</div>
+                        <p>
+                            <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
+                               data-bs-text="{{ comment.text }}" data-bs-pk="{{ comment.pk }}">Ред.</a>
+                            <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
+                               data-bs-pk="{{ comment.pk }}">Удалить?</a>
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            const commentDeleteModal = document.getElementById('delete-comment')
+            commentDeleteModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget
+                const pk = button.getAttribute('data-bs-pk')
+                const submit = commentDeleteModal.querySelector('.modal-footer .btn-primary')
+                submit.href = '{% url 'comment-delete' 228 %}'.replace(/228/, pk)
+            })
+
+            const commentUpdateModal = document.getElementById('update-comment')
+            commentUpdateModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget
+                const pk = button.getAttribute('data-bs-pk')
+                const text = button.getAttribute('data-bs-text')
+                const form = commentUpdateModal.querySelector('form')
+                form.action = '{% url 'comment-update' 228 %}'.replace(/228/, pk)
+                const textInput = commentUpdateModal.querySelector('.modal-body textarea')
+
+                textInput.value = text
+            })
+        </script>
     </div>
 {% endblock content %}

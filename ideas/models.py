@@ -34,7 +34,7 @@ class Idea(models.Model):
     type = models.ForeignKey(IdeaType, on_delete=models.SET_DEFAULT, verbose_name='Тип', default=None, null=True)
     tags = models.ManyToManyField(IdeaTag, verbose_name='Теги')
     date_update = models.DateTimeField(verbose_name='Дата обновления', auto_now=True)
-    date_posted = models.DateTimeField(verbose_name='Дата записи', default=timezone.now)
+    date_posted = models.DateTimeField(verbose_name='Дата записи', auto_now_add=True)
     authors = models.ManyToManyField(User, verbose_name='Авторы', related_name='idea2authors')
     users_can_view = models.ManyToManyField(User, verbose_name='Пользователи, которые могут просматривать',
                                             related_name='idea2person_view')
@@ -48,7 +48,7 @@ class Idea(models.Model):
         ordering = ['-date_update', ]
 
     def __str__(self):
-        return self.content
+        return f'{self.real_author} {self.title}'
 
     def get_absolute_url(self):
         return reverse('idea-detail', kwargs={'pk': self.pk})
@@ -56,9 +56,12 @@ class Idea(models.Model):
 
 class Comment(models.Model):
     text = models.TextField(verbose_name='Текст', null=False)
-    date_posted = models.DateTimeField(verbose_name='Дата комментария', auto_now=True)
+    date_posted = models.DateTimeField(verbose_name='Дата комментария', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE)  # Maybe I need verbose name, but IDK what to write here :(
+
+    def __str__(self):
+        return f'{self.author} {self.text}'
 
     class Meta:
         ordering = ['date_posted', ]

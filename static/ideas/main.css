@@ -1,4 +1,23 @@
+.comment-text {
+    margin: 5px;
+    justify-content: space-between;
+    word-break: break-word;
+    white-space: pre-line;
+    display: inline-block;
+}
+
 .comment {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.comments {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-comment {
     background-color: white;
     margin: 5px;
     padding: 5px;
@@ -118,10 +137,6 @@ footer a {
 footer a:hover {
     color: #777;
     text-decoration: none;
-}
-
-.btn-primary {
-    margin-bottom: 20px;
 }
 
 .media {
