@@ -78,20 +78,34 @@
 
     <div id="comments">
         <br>
-        <button class="btn btn-primary" id="button-add-comment" type="button" data-bs-toggle="collapse"
-                data-bs-target="#leave-comment" aria-expanded="false" aria-controls="leave-comment">
+        <button class="btn btn-primary" id="button-add-comment" data-bs-toggle="modal"
+                data-bs-target="#create-comment" data-bs-pk="{{ idea.pk }}">
             Добавить комментарий
         </button>
         <br>
         <br>
-        <div class="collapse" id="leave-comment">
-            <form method="post" action="{% url 'comment-create' idea.pk %}">
-                {% csrf_token %}
-                {{ add_comment_form|crispy }}
-                <br>
-                <input type="submit" class="btn btn-success" value="Оставить комментарий">
-            </form>
-            <br>
+
+        <div class="modal fade" id="create-comment" tabindex="-1" aria-labelledby="create-comment-label"
+             aria-hidden="true">
+            <div class="modal-dialog" style="min-width: 50%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="create-comment-label">Добавление комментария</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="comment-creator" method="post" style="min-width: 50%">
+                            {% csrf_token %}
+                            {{ add_comment_form }}
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
+                        </button>
+                        <input type="submit" form="comment-creator" class="btn btn-success" value="Сохранить">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="modal fade" id="delete-comment" tabindex="-1" aria-labelledby="delete-comment-label"
@@ -123,7 +137,7 @@
                                 aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="comment-updater" method="post">
+                        <form id="comment-updater" method="post" style="min-width: 50%">
                             {% csrf_token %}
                             {{ update_comment_form }}
                         </form>
@@ -138,27 +152,25 @@
         </div>
 
         <div class="comments">
-            {% for comment in comments %}
-                <div class="full-comment" id="{{ comment.id }}">
-                    <small><a href="{% url 'ideas-home' %}?authors={{ comment.author.pk }}">{{ comment.author }}</a>
-                        at {{ comment.date_posted|date:"M d, Y" }}
-                    </small>
-                    <div class="card comment" style="background-color: white">
-                        <div class="comment-text">{{ comment.text }}</div>
-                        {% if comment.author == user %}
-                            <p>
-                                <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
-                                   data-bs-text="{{ comment.text }}" data-bs-pk="{{ comment.pk }}">Ред.</a>
-                                <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
-                                   data-bs-pk="{{ comment.pk }}">Удалить?</a>
-                            </p>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
+            <ul>
+                {% include 'comments/comment_printer.html' with comments=comments idea=idea user=user %}
+            </ul>
         </div>
 
         <script>
+            const commentCreateModal = document.getElementById('create-comment')
+            commentCreateModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget
+                const pk = button.getAttribute('data-bs-pk')
+                const reply = button.getAttribute('data-bs-reply')
+                const form = commentCreateModal.querySelector('form')
+                if (Object.is(reply, null)) {
+                    form.action = '{% url 'comment-create' 1 %}'.replace(/1/, pk)
+                } else {
+                    form.action = '{% url 'comment-reply' 1 2 %}'.replace(/1/, pk).replace(/2/, reply)
+                }
+            })
+
             const commentDeleteModal = document.getElementById('delete-comment')
             commentDeleteModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget

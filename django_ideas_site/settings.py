@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ideas.apps.IdeasConfig',
     'users.apps.UsersConfig',
+    'comments.apps.CommentsConfig',
     'crispy_forms',
     'django_select2',
     'rest_framework'
@@ -62,8 +63,7 @@ ROOT_URLCONF = 'django_ideas_site.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -1,21 +1,24 @@
 from copy import deepcopy
+import pprint
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import reverse, redirect, get_object_or_404, render
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
-from django.views.generic.edit import FormMixin
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm, AddCommentForm, UpdateCommentForm
-from .models import Idea, IdeaType, IdeaTag, Comment
+from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
+from .models import Idea, IdeaType, IdeaTag
+
+from comments.forms import AddCommentForm, UpdateCommentForm
+from comments.utilities import gather_comments
 
 
-def general_test_func(idea, user, check_read=True):  # self because it was in every other test function
+def check_user_idea_access(idea, user, check_read=True):
     if user.is_staff or \
             idea.real_author == user or \
             user in idea.users_can_edit.all() or \
@@ -151,11 +154,14 @@ def idea_detail_view(request, pk: int):
     idea = get_object_or_404(Idea, pk=pk)
     user = request.user
     template_name = 'ideas/idea_detail.html'
-    if not general_test_func(idea, user, check_read=True):
+    if not check_user_idea_access(idea, user, check_read=True):
         raise PermissionDenied
+    parent_comments = idea.comment_set.filter(in_reply_to=None)
+    comments = [gather_comments(parent) for parent in parent_comments]
+    pprint.pprint(comments)
     return render(request, template_name, {'idea': idea,
-                                           'comments': idea.comment_set.all(),
-                                           'user_can_edit': general_test_func(idea, user, check_read=False),
+                                           'comments': comments,
+                                           'user_can_edit': check_user_idea_access(idea, user, check_read=False),
                                            'add_comment_form': AddCommentForm(),
                                            'update_comment_form': UpdateCommentForm()})
 
@@ -189,7 +195,7 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def test_func(self):
-        return general_test_func(self.get_object(), self.request.user, check_read=False)
+        return check_user_idea_access(self.get_object(), self.request.user, check_read=False)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -198,46 +204,4 @@ class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = '/'
 
     def test_func(self):
-        return general_test_func(self.get_object(), self.request.user, check_read=False)
-
-
-def delete_comment_by_user_request(request, pk: int):
-    user = request.user
-    comment = get_object_or_404(Comment, pk=pk)
-    if not (user.is_staff or comment.author == user):
-        raise PermissionDenied
-    idea = comment.idea
-    comment.delete()
-    return redirect('idea-detail', idea.pk)
-
-
-def update_comment_by_user_request(request, pk: int):
-    user = request.user
-    comment = get_object_or_404(Comment, pk=pk)
-    idea = comment.idea
-    if not general_test_func(idea, user, check_read=False):
-        raise PermissionDenied
-    if comment.author != user:
-        raise PermissionDenied
-    if request.method != 'POST':
-        return redirect('idea-detail', idea.pk)
-    form = UpdateCommentForm(request.POST)
-    if form.is_valid():
-        text = form.cleaned_data['text']
-        comment.text = text
-        comment.save()
-    return redirect('idea-detail', idea.pk)
-
-
-def create_comment_by_user_request(request, pk: int):
-    user = request.user
-    idea = get_object_or_404(Idea, pk=pk)
-    if not general_test_func(idea, user, check_read=False):
-        raise PermissionDenied
-    if request.method != 'POST':
-        return redirect('idea-detail', idea.pk)
-    form = AddCommentForm(request.POST)
-    if form.is_valid():
-        text = form.cleaned_data['text']
-        Comment(text=text, author=user, idea=idea).save()
-    return redirect('idea-detail', idea.pk)
+        return check_user_idea_access(self.get_object(), self.request.user, check_read=False)

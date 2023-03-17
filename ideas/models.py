@@ -1,7 +1,7 @@
-from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db import models
 from django.urls import reverse
+
 from users.models import UserGroup
 
 
@@ -52,19 +52,6 @@ class Idea(models.Model):
 
     def get_absolute_url(self):
         return reverse('idea-detail', kwargs={'pk': self.pk})
-
-
-class Comment(models.Model):
-    text = models.TextField(verbose_name='Текст', null=False)
-    date_posted = models.DateTimeField(verbose_name='Дата комментария', auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
-    idea = models.ForeignKey(Idea, on_delete=models.CASCADE)  # Maybe I need verbose name, but IDK what to write here :(
-
-    def __str__(self):
-        return f'{self.author} {self.text}'
-
-    class Meta:
-        ordering = ['date_posted', ]
 
 
 def user_str(self: User):

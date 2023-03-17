@@ -1,0 +1,33 @@
+{% for comment in comments %}
+    <li>
+        <div class="full-comment" id="comment{{ comment.comment_data.id }}">
+            <small>
+                <a href="{% url 'ideas-home' %}?authors={{ comment.comment_data.author.pk }}">
+                    {{ comment.comment_data.author }}</a>
+                at {{ comment.comment_data.date_posted|date:"M d, Y" }}
+                {% if comment.comment_data.in_reply_to %}
+                    <a href="#comment{{ comment.comment_data.in_reply_to.pk }}">;В ответ на</a>
+                {% endif %}
+            </small>
+            <div class="card comment" style="background-color: white">
+                <div class="comment-text">{{ comment.comment_data.text }}</div>
+                {% if comment.comment_data.author == user %}
+                    <p>
+                        <a class="text-muted" data-bs-toggle="modal" href="#create-comment"
+                           data-bs-pk="{{ idea.pk }}" data-bs-reply="{{ comment.comment_data.pk }}">Отв.</a>
+                        <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
+                           data-bs-text="{{ comment.comment_data.text }}"
+                           data-bs-pk="{{ comment.comment_data.pk }}">Ред.</a>
+                        <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
+                           data-bs-pk="{{ comment.comment_data.pk }}">Удалить?</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% if comment.children %}
+        <ul>
+            {% include 'comments/comment_printer.html' with comments=comment.children idea=idea user=user %}
+        </ul>
+    {% endif %}
+{% endfor %}
