@@ -6,6 +6,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
     lastname = models.CharField(max_length=100, blank=False)
+    telegram_login = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name} {self.lastname} ({self.user.username})'

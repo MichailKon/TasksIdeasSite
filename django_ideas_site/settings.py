@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = open('secret_key.txt').read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['ejudge.strategy48.ru', 'localhost', '127.0.0.1', 'perveevm.ru']
 
@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'crispy_forms',
     'django_select2',
-    'rest_framework'
+    'rest_framework',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,6 @@ LOGIN_URL = 'login'
 # )
 
 CSRF_TRUSTED_ORIGINS = ['https://perveevm.ru', 'http://localhost:8000']
+
+SESSION_COOKIE_AGE = 315360000  # 10 years
+SESSION_SAVE_EVERY_REQUEST = True
