@@ -10,7 +10,6 @@
 }
 
 .comment-text {
-    margin: 5px;
     justify-content: space-between;
     word-break: break-word;
     white-space: pre-line;
@@ -32,6 +31,7 @@
     background-color: white;
     margin: 5px;
     padding: 5px;
+    word-wrap: break-word;
 }
 
 .content-section {

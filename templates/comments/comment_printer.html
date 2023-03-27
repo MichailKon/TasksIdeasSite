@@ -4,21 +4,21 @@
             <small>
                 <a href="{% url 'ideas-home' %}?authors={{ comment.comment_data.author.pk }}">
                     {{ comment.comment_data.author }}</a>
-                at {{ comment.comment_data.date_posted|date:"M d, Y" }}
+                at {{ comment.comment_data.date_posted|date:"M d, Y" }} |
+                <a class="text-muted" data-bs-toggle="modal" href="#create-comment"
+                   data-bs-pk="{{ idea.pk }}" data-bs-reply="{{ comment.comment_data.pk }}">Отв.</a>
+                {% if comment.comment_data.author == user %}
+                    <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
+                       data-bs-text="{{ comment.comment_data.text }}"
+                       data-bs-pk="{{ comment.comment_data.pk }}">Ред.</a>
+                    <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
+                       data-bs-pk="{{ comment.comment_data.pk }}">Удалить?</a>
+                {% endif %}
             </small>
-            <div class="card comment" style="background-color: white">
-                <div class="comment-text">{{ comment.comment_data.text }}</div>
-                <p>
-                    <a class="text-muted" data-bs-toggle="modal" href="#create-comment"
-                       data-bs-pk="{{ idea.pk }}" data-bs-reply="{{ comment.comment_data.pk }}">Отв.</a>
-                    {% if comment.comment_data.author == user %}
-                        <a class="text-muted" data-bs-toggle="modal" href="#update-comment"
-                           data-bs-text="{{ comment.comment_data.text }}"
-                           data-bs-pk="{{ comment.comment_data.pk }}">Ред.</a>
-                        <a class="text-muted" data-bs-toggle="modal" href="#delete-comment"
-                           data-bs-pk="{{ comment.comment_data.pk }}">Удалить?</a>
-                    {% endif %}
-                </p>
+            <div class="card comment">
+                <div class="card-body">
+                    <p class="card-text text-break">{{ comment.comment_data.text }}</p>
+                </div>
             </div>
         </div>
     </li>

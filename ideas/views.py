@@ -1,32 +1,20 @@
 from copy import deepcopy
-import pprint
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import CreateView, UpdateView, ListView
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-
-from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
-from .models import Idea, IdeaType, IdeaTag
 
 from comments.forms import AddCommentForm, UpdateCommentForm
 from comments.utilities import gather_comments
-
-
-def check_user_idea_access(idea, user, check_read=True):
-    if user.is_staff or \
-            idea.real_author == user or \
-            user in idea.users_can_edit.all() or \
-            any(user in rel.users.all() for rel in idea.groups_access.all()):
-        return True
-    if check_read and user in idea.users_can_view.all():
-        return True
-    return False
+from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
+from .models import Idea, IdeaType, IdeaTag
+from .utilities import check_user_idea_access
 
 
 def is_valid_param(param):
@@ -158,7 +146,6 @@ def idea_detail_view(request, pk: int):
         raise PermissionDenied
     parent_comments = idea.comment_set.filter(in_reply_to=None)
     comments = [gather_comments(parent) for parent in parent_comments]
-    pprint.pprint(comments)
     return render(request, template_name, {'idea': idea,
                                            'comments': comments,
                                            'user_can_edit': check_user_idea_access(idea, user, check_read=False),
@@ -198,10 +185,10 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return check_user_idea_access(self.get_object(), self.request.user, check_read=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class IdeaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Idea
-    success_url = '/'
-
-    def test_func(self):
-        return check_user_idea_access(self.get_object(), self.request.user, check_read=False)
+def idea_delete_view(request, pk: int):
+    idea = get_object_or_404(Idea, pk=pk)
+    user = request.user
+    if not check_user_idea_access(idea, user):
+        raise PermissionDenied
+    idea.delete()
+    return redirect('ideas-home')

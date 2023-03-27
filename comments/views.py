@@ -1,16 +1,11 @@
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 
 from ideas.models import Idea
-from ideas.views import check_user_idea_access
-from .models import Comment
+from ideas.utilities import check_user_idea_access
 from .forms import AddCommentForm, UpdateCommentForm
-
-
-def check_comment_edit_or_delete_access(comment: Comment, user: User):
-    idea = comment.idea
-    return check_user_idea_access(idea, user, check_read=False) and (user.is_staff or comment.author == user)
+from .models import Comment
+from .utilities import check_comment_edit_or_delete_access
 
 
 def delete_comment_by_user_request(request, pk: int):
