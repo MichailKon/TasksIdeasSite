@@ -48,6 +48,10 @@
                     <small class="text-muted">Тип: {{ idea.type }}</small>
                     <br>
                 {% endif %}
+                {% if idea.difficulty %}
+                    <small class="text-muted">Сложность: {{ idea.difficulty }}</small>
+                    <br>
+                {% endif %}
                 {% if idea.tags.all %}
                     <small class="text-muted">Теги: {{ idea.tags.all|join:", " }}</small>
                     <br>
@@ -71,6 +75,11 @@
                 {% endif %}
                 {% if idea.real_author.all %}
                     <small class="text-muted">Кто предложил: {{ idea.real_author|join:", " }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.polygon_task %}
+                    <small class="text-muted">Название на полигоне: {{ idea.polygon_task }}</small>
+                    <br>
                 {% endif %}
             </div>
         </div>

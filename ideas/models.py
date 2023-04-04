@@ -27,6 +27,13 @@ class IdeaStatus(models.Model):
         return self.status
 
 
+class Difficulty(models.Model):
+    difficulty = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.difficulty
+
+
 class Idea(models.Model):
     title = models.TextField(verbose_name='Название')
     content = models.TextField(verbose_name='Идея')
@@ -42,7 +49,10 @@ class Idea(models.Model):
                                             related_name='idea2person_edit')
     groups_access = models.ManyToManyField(UserGroup, verbose_name='Группы пользователей, которые могут редактировать')
     status = models.ForeignKey(IdeaStatus, on_delete=models.SET_DEFAULT, default=None, null=True, verbose_name='Статус')
+    difficulty = models.ForeignKey(Difficulty, on_delete=models.SET_DEFAULT, default=None, null=True,
+                                   verbose_name='Сложность')
     short_editorial = models.TextField(verbose_name='Идея решения', default='')
+    polygon_task = models.CharField(max_length=100, verbose_name='Название на полигоне', default=None, null=True)
 
     class Meta:
         ordering = ['-date_update', ]

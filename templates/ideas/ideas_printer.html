@@ -20,12 +20,20 @@
                     <small class="text-muted">Тип: {{ idea.type_name }}</small>
                     <br>
                 {% endif %}
+                {% if idea.difficulty %}
+                    <small class="text-muted">Сложность: {{ idea.difficulty }}</small>
+                    <br>
+                {% endif %}
                 {% if idea.tags_list %}
                     <small class="text-muted">Теги: {{ idea.tags_list }}</small>
                     <br>
                 {% endif %}
                 {% if idea.authors_list %}
                     <small class="text-muted">Авторы: {{ idea.authors_list }}</small>
+                    <br>
+                {% endif %}
+                {% if idea.polygon_task %}
+                    <small class="text-muted">Название на полигоне: {{ idea.polygon_task }}</small>
                     <br>
                 {% endif %}
             </div>

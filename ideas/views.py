@@ -14,13 +14,7 @@ from comments.forms import AddCommentForm, UpdateCommentForm
 from comments.utilities import gather_comments
 from .forms import FilterForm, UpdateIdeaForm, AddIdeaForm
 from .models import Idea, IdeaType, IdeaTag
-from .utilities import check_user_idea_access
-
-
-def is_valid_param(param):
-    if param is None:
-        return False
-    return any(map(bool, param))
+from .utilities import check_user_idea_access, is_valid_param
 
 
 class IdeaListSerializer(ModelSerializer):
@@ -32,6 +26,8 @@ class IdeaListSerializer(ModelSerializer):
     status_color = SerializerMethodField()
     date_posted = SerializerMethodField()
     date_update = SerializerMethodField()
+    difficulty = SerializerMethodField()
+    polygon_task = SerializerMethodField()
 
     class Meta:
         model = Idea
@@ -87,6 +83,14 @@ class IdeaListSerializer(ModelSerializer):
                 break
         return res + ('...' if add_ellipsis else '')
 
+    @staticmethod
+    def get_difficulty(obj: Idea):
+        return obj.difficulty
+
+    @staticmethod
+    def get_polygon_task(obj: Idea):
+        return obj.polygon_task
+
 
 class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Idea
@@ -104,6 +108,7 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             init = deepcopy(self.request.GET)
             init['authors'] = init.getlist('authors', [])
             init['tags'] = init.getlist('tags', [])
+            init['difficulty'] = init.getlist('difficulty', [])
 
             context |= {'form_filter': FilterForm(initial=init)}
         return context
@@ -124,6 +129,8 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             result = result.filter(content__icontains=parameters.get('content_contains'))
         if is_valid_param(parameters.get('status')):
             result = result.filter(status=parameters.get('status'))
+        if is_valid_param(parameters.getlist('difficulty')):
+            result = result.filter(difficulty__in=filter(bool, parameters.getlist('difficulty', [])))
         if not user.is_staff:
             user_groups = user.usergroup_set.all()
             result = result.filter(Q(users_can_view__in=[user.id]) |

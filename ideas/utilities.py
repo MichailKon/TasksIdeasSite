@@ -7,3 +7,9 @@ def check_user_idea_access(idea, user, check_read=True):
     if check_read and user in idea.users_can_view.all():
         return True
     return False
+
+
+def is_valid_param(param):
+    if param is None:
+        return False
+    return any(map(bool, param))

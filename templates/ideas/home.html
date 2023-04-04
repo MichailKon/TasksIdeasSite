@@ -5,6 +5,7 @@
         <br>
     {% endif %}
     <br>
+    <p>Идей на странице: {{ ideas|length }}</p>
     {% include "ideas/ideas_printer.html" %}
     {% if is_paginated %}
         <ul class="pagination justify-content-center">
