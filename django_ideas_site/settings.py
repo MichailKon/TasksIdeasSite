@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_select2',
     'rest_framework',
-    'api'
+    'api',
+    'contests'
 ]
 
 MIDDLEWARE = [

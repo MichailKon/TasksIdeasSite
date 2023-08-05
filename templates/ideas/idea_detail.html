@@ -1,32 +1,32 @@
 {% extends "ideas/base.html" %}
 {% load crispy_forms_filters %}
 {% block content %}
-    <article class="media content-section">
+    <article class="media content_section">
         {% if idea.status %}
-            <small class="text-muted task-status"
+            <small class="text-muted task_status"
                    style="background-color: {{ idea.status.color }}">Статус: {{ idea.status }}</small>
         {% else %}
-            <small class="text-muted task-status">Статус:</small>
+            <small class="text-muted task_status">Статус:</small>
         {% endif %}
         <div class="media-body">
             {% if user_can_edit %}
                 <div class="article-metadata">
                     <a class="btn btn-secondary btn-sm mt-1 mb-1"
                        href="{% url 'idea-update' idea.id %}">Редактировать</a>
-                    <a class="btn btn-danger btn-sm mt-1 mb-1" data-bs-toggle="modal" data-bs-target="#delete-idea"
+                    <a class="btn btn-danger btn-sm mt-1 mb-1" data-bs-toggle="modal" data-bs-target="#delete_idea"
                        data-bs-pk="{{ idea.pk }}"
                        href="{% url 'idea-delete' idea.id %}">Удалить</a>
                 </div>
             {% endif %}
-            <div class="idea-info-body">
+            <div class="idea_info_body">
                 <small class="text-muted">Последнее обновление: {{ idea.date_update|date:"M d, Y" }}</small>
                 <br>
                 <small class="text-muted">Дата записи: {{ idea.date_posted|date:"M d, Y" }}</small>
             </div>
 
-            <h2 class="idea-title">{{ idea.title }}</h2>
+            <h2 class="idea_title">{{ idea.title }}</h2>
 
-            <p class="idea-content">{{ idea.content }}</p>
+            <p class="idea_content">{{ idea.content }}</p>
 
             <p>
                 <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
@@ -37,13 +37,13 @@
 
             <div class="collapse" id="editorial">
                 <div class="card card-body">
-                    <p class="idea-editorial">{{ idea.short_editorial }}</p>
+                    <p class="idea_editorial">{{ idea.short_editorial }}</p>
                 </div>
             </div>
 
             <hr>
 
-            <div class="idea-info-body">
+            <div class="idea_info_body">
                 {% if idea.type %}
                     <small class="text-muted">Тип: {{ idea.type }}</small>
                     <br>
@@ -94,6 +94,8 @@
         <br>
         <br>
 
+        {% include "modal_creator.html" with modal_id="delete_idea" modal_title="Удалить идею" modal_text="Вы точно хотите удалить идею?" button_cancel_text="Отмена" button_delete_text="Удалить" %}
+
         <div class="modal fade" id="create-comment" tabindex="-1" aria-labelledby="create-comment-label"
              aria-hidden="true">
             <div class="modal-dialog" style="min-width: 50%">
@@ -112,25 +114,6 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
                         </button>
                         <input type="submit" form="comment-creator" class="btn btn-success" value="Сохранить">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="delete-idea" tabindex="-1" aria-labelledby="delete-idea-label"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="delete-idea-label">Удаление идеи</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Вы действительно хотите удалить идею?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Оставить</button>
-                        <a type="button" class="btn btn-danger" id="delete-idea-confirm">Удалить</a>
                     </div>
                 </div>
             </div>
@@ -186,11 +169,11 @@
         </div>
 
         <script>
-            const ideaDeleteModal = document.getElementById('delete-idea')
+            const ideaDeleteModal = document.getElementById('delete_idea')
             ideaDeleteModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget
                 const pk = button.getAttribute('data-bs-pk')
-                const submit = ideaDeleteModal.querySelector('#delete-idea-confirm')
+                const submit = ideaDeleteModal.querySelector('#delete_idea-confirm')
                 submit.href = '{% url 'idea-delete' 228 %}'.replace(/228/, pk)
             })
 

@@ -64,7 +64,7 @@ class Idea(models.Model):
         return reverse('idea-detail', kwargs={'pk': self.pk})
 
 
-def user_str(self: User):
+def user_str(self: User):  # wtf why is it here??? OK, will fix it at some day mb
     return f'{self.profile.name} {self.profile.lastname} ({self.username})'
 
 

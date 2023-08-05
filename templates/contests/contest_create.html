@@ -1,4 +1,4 @@
-{% extends "ideas/base.html" %}
+{% extends "contests/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
     {% if user.is_authenticated %}
@@ -16,7 +16,7 @@
             </form>
         </div>
     {% else %}
-        <h1>Нужно войти для того, чтобы предложить идею</h1>
+        <h1>Нужно войти для того, чтобы создать контест</h1>
     {% endif %}
     <br>
 {% endblock content %}

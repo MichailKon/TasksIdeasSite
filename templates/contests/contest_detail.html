@@ -1,0 +1,30 @@
+{% extends "contests/base.html" %}
+
+{% block content %}
+    <div>
+        <h1>{{ contest.name }}</h1>
+    </div>
+    <div>
+        {% if user_can_edit %}
+            <div class="article-metadata">
+                <a class="btn btn-secondary btn-sm mt-1 mb-1"
+                   href="{% url 'contest-update' contest.id %}">Редактировать</a>
+                <a class="btn btn-danger btn-sm mt-1 mb-1" data-bs-toggle="modal" data-bs-target="#delete_contest"
+                   data-bs-pk="{{ contest.pk }}"
+                   href="{% url 'contest-delete' contest.id %}">Удалить</a>
+                {% include "modal_creator.html" with modal_id="delete_contest" modal_title="Удалить контест" modal_text="Вы точно хотите удалить контест?" button_cancel_text="Отмена" button_delete_text="Удалить" %}
+            </div>
+        {% endif %}
+        <script>
+            const contestDeleteModal = document.getElementById('delete_contest')
+            contestDeleteModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget
+                const pk = button.getAttribute('data-bs-pk')
+                const submit = contestDeleteModal.querySelector('#delete_contest-confirm')
+                submit.href = '{% url 'contest-delete' 228 %}'.replace(/228/, pk)
+            })
+        </script>
+    </div>
+    <br>
+    {% include "ideas/ideas_printer.html" with ideas=contest.ideas_list.all %}
+{% endblock %}

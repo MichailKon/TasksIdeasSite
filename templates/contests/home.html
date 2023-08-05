@@ -1,0 +1,11 @@
+{% extends "contests/base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <a class="btn btn-primary" href="{% url 'contest-create' %}">Новый контест</a>
+    {% endif %}
+    <br>
+    <p>Контестов на странице: {{ contests|length }}</p>
+    {% include "contests/contests_printer.html" %}
+
+{% endblock %}

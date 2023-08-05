@@ -1,0 +1,9 @@
+{% extends "base_scripts.html" %}
+{% load static %}
+
+{% block user_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'ideas/main.css' %}">
+    {{ form_filter.media.css }}
+{% endblock %}
+
+{% block content %}{% endblock %}

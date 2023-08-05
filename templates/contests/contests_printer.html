@@ -1,0 +1,25 @@
+{% for contest in contests %}
+    <div class="media content_section">
+        <div class="media-body contest">
+            <div class="contest_info_body">
+                <small class="text-muted">Последнее обновление: {{ contest.date_update|date:"M d, Y" }}</small>
+                <br>
+                <small class="text-muted">Дата записи: {{ contest.date_posted|date:"M d, Y" }}</small>
+                <h2>
+                    <a class="contest_title" href="{% url 'contest-detail' contest.pk %}">{{ contest.name }}</a>
+                </h2>
+            </div>
+
+            <div class="contest_ideas_title">
+                <ul>
+                    {% for idea_in_contest in contest.ideaincontest_set.all %}
+                        <li>
+                            {{ idea_in_contest.idea.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <br>
+{% endfor %}
