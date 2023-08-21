@@ -136,7 +136,11 @@ class IdeaListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             result = result.filter(Q(users_can_view__in=[user.id]) |
                                    Q(real_author=user.id) |
                                    Q(users_can_edit__in=[user.id]) |
-                                   Q(groups_access__in=user_groups))
+                                   Q(groups_access__in=user_groups) |
+                                   Q(contest__users_can_view__in=[user.id]) |
+                                   Q(contest__users_can_edit__in=[user.id]) |
+                                   Q(contest__groups_access__in=user_groups) |
+                                   Q(contest__real_author=user.id))
         result = result.distinct()
         result = result.order_by("-date_update")
         return result.all()
@@ -189,13 +193,13 @@ class IdeaUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def test_func(self):
-        return check_user_idea_access(self.get_object(), self.request.user, check_read=False)
+        return check_user_idea_access(self.get_object(), self.request.user, False)
 
 
 def idea_delete_view(request, pk: int):
     idea = get_object_or_404(Idea, pk=pk)
     user = request.user
-    if not check_user_idea_access(idea, user):
+    if not check_user_idea_access(idea, user, False):
         raise PermissionDenied
     idea.delete()
     return redirect('ideas-home')

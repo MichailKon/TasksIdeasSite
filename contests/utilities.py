@@ -1,4 +1,4 @@
-def check_user_contest_access(contest, user, check_read=True):  # well, duplicated code for now...
+def check_user_contest_access(contest, user, check_read):
     if user.is_staff or \
             contest.real_author == user or \
             user in contest.users_can_edit.all() or \

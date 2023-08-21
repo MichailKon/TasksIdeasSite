@@ -90,7 +90,7 @@ class ContestCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 def contest_delete_view(request, pk: int):
     contest = get_object_or_404(Contest, pk=pk)
     user = request.user
-    if not check_user_contest_access(contest, user):
+    if not check_user_contest_access(contest, user, False):
         raise PermissionDenied
     contest.delete()
     return redirect('contests-home')
