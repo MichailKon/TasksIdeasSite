@@ -1,0 +1,204 @@
+{% extends "contests/base.html" %}
+
+{% block content %}
+    <h1>{{ contest.name }}</h1>
+    <h2>
+        <a href="{% url 'contest-detail' contest.pk %}" class="btn btn-secondary">Назад</a>
+        <a id="save-button" class="btn btn-success">Сохранить</a>
+    </h2>
+    <table class="input_filter" style="width: 100%;">
+        <tbody>
+        <tr>
+            <td>
+                <label>
+                    <input id="searchInput" name="query" type="text" style="width: 100%">
+                </label>
+            </td>
+            <td style="width: 6em">
+                <input type="submit" class="submit-button" name="search" value="Search" id="searchButton"
+                       style="margin-left: 1em; width: 5em;">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <div class="table-responsive" style="max-height: 20em">
+        <table class="table table-striped table-bordered" id="possible_tasks"
+               style="max-height: 25em; overflow-y: scroll; overflow-x: hidden">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Modif.</th>
+                <th>Tags</th>
+                <th>Contests</th>
+                <th>Add?</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <div class="table-responsive" style="max-height: 20em">
+        <table class="table table-striped table-bordered" id="taken_tasks"
+               style="max-height: 25em; overflow-y: scroll; overflow-x: hidden">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Modif.</th>
+                <th>Tags</th>
+                <th>Contests</th>
+                <th>Add?</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for idea in contest.ideas_list.all %}
+                <tr>
+                    <td><a href="{% url 'idea-detail' idea.pk %}">{{ idea.pk }}</a></td>
+                    <td><a href="{% url 'idea-detail' idea.pk %}">{{ idea.title }}</a></td>
+                    <td>{{ idea.short_content }}</td>
+                    <td>{{ idea.date_update|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ idea.tags.all|join:", " }}</td>
+                    <td>
+                        <ul>
+                            {% for con in idea.contest_set.all %}
+                                <li><a href="{% url 'contest-detail' con.pk %}">{{ con.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td><input type="checkbox" class="checkbox" idea="{{ idea.pk }}" checked="checked"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        const takenTasks = []
+
+        $(document).ready(function () {
+            $("#taken_tasks tr").each(function (i, row) {
+                const $row = $(row);
+                const $checkbox = $row.find('input');
+                console.log("aboba: ", $checkbox.attr('idea'));
+                if ($checkbox.attr('idea') !== undefined) {
+                    takenTasks.push($checkbox.attr('idea'));
+                }
+            });
+        })
+
+        $(document).ready(function () {
+            $('#searchButton').on("click", function () {
+                $.ajax({
+                    data: {'query': $('#searchInput').val()},
+                    type: 'GET',
+                    url: "{% url 'get-ideas-by-query' %}",
+                    success: function (response) {
+                        const tasks_table = $('#possible_tasks tbody');
+                        tasks_table.empty();
+                        for (const i of response.ideas) {
+                            const ideaHref = '{% url 'idea-detail' 228 %}'.replace(/228/, i.pk)
+                            const modif = moment(i.modif)
+
+                            let cur_str = '<tr>' +
+                                `<td><a href=${ideaHref}>${i.pk}</a></td>` +
+                                `<td><a href=${ideaHref}>${i.title}</a></td>` +
+                                '<td>' + i.short_content + '</td>' +
+                                `<td>${modif.format("YYYY-MM-DD HH:mm:ss")}</td>` +
+                                '<td>' + i.tags + '</td>';
+
+                            cur_str += '<td><ul>';
+                            for (const j of i.contests) {
+                                const toHref = '{% url 'contest-detail' 228 %}'.replace(/228/, j.pk);
+                                const contestTitle = j.name;
+                                cur_str += `<li><a href="${toHref}">${contestTitle}</a></li>`;
+                            }
+                            cur_str += '</ul></td>';
+
+                            cur_str += `<td><input type=checkbox class=checkbox idea=${i.pk}></td>`;
+
+                            cur_str += '</tr>';
+                            tasks_table.append(cur_str);
+                            console.log(takenTasks, i.pk);
+                            if (takenTasks.includes(i.pk)) {
+                                $('#possible_tasks tr:last input').prop("checked", true);
+                            }
+                        }
+
+                    },
+                    error: function (response) {
+                        console.log('aboba');
+                        console.log(response);
+                    }
+                });
+            });
+        })
+
+        $(document).on('change', '.checkbox', function () {
+            const taskId = $(this).attr('idea');
+            if ($(this).prop("checked")) {
+                takenTasks.push(taskId);
+                // add this to lower table
+                $("#possible_tasks tr").each(function (i, row) {
+                    const $row = $(row);
+                    const $checkbox = $row.find('input');
+                    if ($checkbox.attr('idea') === taskId) {
+                        $("#taken_tasks tbody").append('<tr>' + $row.closest('tr').html() + '</tr>');
+                        $("#taken_tasks tbody:last").find('input').prop("checked", true);
+                    }
+                })
+            } else {
+                takenTasks.splice(takenTasks.indexOf(taskId), 1);
+                $("#possible_tasks tr").each(function (i, row) {
+                    const $row = $(row);
+                    const $checkbox = $row.find('input');
+                    if ($checkbox.attr('idea') === taskId) {
+                        $checkbox.prop("checked", false);
+                    }
+                });
+                $("#taken_tasks tr").each(function (i, row) {
+                    const $row = $(row);
+                    const $checkbox = $row.find('input');
+                    if ($checkbox.attr('idea') === taskId) {
+                        $row.remove();
+                    }
+                });
+            }
+        })
+
+        $(document).ready(function () {
+            $('#searchButton').click();
+        })
+
+        // mark initially taken tasks
+        $(document).ready(function () {
+            // why is it empty bruh
+        })
+
+        const url_items = window.location.href.split("/")
+        const contest_id = url_items[url_items.length - 2]
+        console.log(contest_id);
+        const save_button = document.querySelector("#save-button")
+        save_button.addEventListener("click", (event) => {
+            $.ajax({
+                data: {'problems': takenTasks},
+                type: 'POST',
+                url: '{% url 'contest-tasks-update-confirm' 228 %}'.replace(/228/, contest_id),
+                success: function (response) {
+                    window.location.href = '{% url 'contest-detail' 228 %}'.replace(/228/, contest_id)
+                },
+                error: function (response) {
+                    console.log("huy")
+                    window.location.href = '{% url 'contest-detail' 228 %}'.replace(/228/, contest_id)
+                }
+            })
+        })
+    </script>
+{% endblock %}

@@ -16,6 +16,7 @@
             onload="renderMathInElement(document.body);"></script>
 
     <!-- Дополнительные скрипты JavaScript -->
+    <script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -91,6 +92,7 @@
                 {% endfor %}
             {% endif %}
             {% block content %}{% endblock %}
+            {% block javascript %}{% endblock %}
 
 {#            todo learn how to make custom back#}
             {% if is_paginated %}
@@ -129,7 +131,7 @@
 
 </main>
 <footer class="text-center bg-dark">
-    <p><a href="{% url 'ideas-home' %}">Copyright © 2023-2023 Mike Kondrashin (misha2kon@mail.ru)</a></p>
+    <p><a href="{% url 'ideas-home' %}">Copyright © 2023-2024 Mike Kondrashin (misha2kon@mail.ru)</a></p>
 </footer>
 
 {% block user_js %} {% endblock %}

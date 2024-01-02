@@ -8,7 +8,9 @@
         {% if user_can_edit %}
             <div class="article-metadata">
                 <a class="btn btn-secondary btn-sm mt-1 mb-1"
-                   href="{% url 'contest-update' contest.id %}">Редактировать</a>
+                   href="{% url 'contest-update' contest.id %}">Редактировать контест</a>
+                <a class="btn btn-secondary btn-sm mt-1 mb-1"
+                   href="{% url 'contest-tasks-update' contest.id %}">Редактировать состав контеста</a>
                 <a class="btn btn-danger btn-sm mt-1 mb-1" data-bs-toggle="modal" data-bs-target="#delete_contest"
                    data-bs-pk="{{ contest.pk }}"
                    href="{% url 'contest-delete' contest.id %}">Удалить</a>

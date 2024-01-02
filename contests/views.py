@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import Http404, JsonResponse
 from django.shortcuts import render
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, BadRequest
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
@@ -10,7 +11,7 @@ from django.views.generic import CreateView, UpdateView, ListView
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from ideas.views import IdeaListSerializer
-from .models import Contest
+from .models import Contest, Idea, IdeaInContest
 from .utilities import check_user_contest_access
 from .forms import UpdateContestForm, AddContestForm
 
@@ -94,3 +95,34 @@ def contest_delete_view(request, pk: int):
         raise PermissionDenied
     contest.delete()
     return redirect('contests-home')
+
+
+def contest_tasks_update_view(request, pk: int):
+    template_name = 'contests/tasks_update.html'
+    contest = get_object_or_404(Contest, pk=pk)
+
+    if not check_user_contest_access(contest, request.user, False):
+        raise PermissionDenied
+    return render(request, template_name, context={"contest": contest})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+def save_tasks2contest(request, pk: int):
+    contest = get_object_or_404(Contest, pk=pk)
+    if not check_user_contest_access(contest, request.user, False):
+        raise PermissionDenied
+    problems = request.POST.getlist('problems[]')
+    problems_to_add = []
+    for i in problems:
+        try:
+            i = int(i)
+        except ValueError:
+            raise BadRequest
+        prob = get_object_or_404(Idea, pk=i)
+        if not check_user_contest_access(contest, request.user, True):
+            continue
+        problems_to_add.append(prob)
+    contest.ideas_list.through.objects.all().delete()
+    for problem in problems_to_add:
+        contest.ideas_list.add(problem)
+    return JsonResponse({"status": "success"})

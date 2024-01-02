@@ -19,6 +19,7 @@ from .utilities import check_user_idea_access, is_valid_param
 
 class IdeaListSerializer(ModelSerializer):
     content_shorted = SerializerMethodField()
+    content_shorted100 = SerializerMethodField()
     tags_list = SerializerMethodField()
     type_name = SerializerMethodField()
     authors_list = SerializerMethodField()
@@ -68,8 +69,8 @@ class IdeaListSerializer(ModelSerializer):
         return ', '.join(i.tag for i in obj.tags.all())
 
     @staticmethod
-    def get_content_shorted(obj: Idea):
-        if len(obj.content) < 550:
+    def _cut_content(obj: Idea, enough_len: int, limit: int, overflow: int):
+        if len(obj.content) < enough_len:
             return obj.content
         res = ''
         cnt = 0
@@ -78,10 +79,18 @@ class IdeaListSerializer(ModelSerializer):
             if i == '$':
                 cnt ^= 1
             res += i
-            if num >= 500 and cnt == 0 or num >= 700:
+            if num >= limit and cnt == 0 or num >= overflow:
                 add_ellipsis = num + 1 != len(obj.content)
                 break
         return res + ('...' if add_ellipsis else '')
+
+    @staticmethod
+    def get_content_shorted100(obj: Idea):
+        return IdeaListSerializer._cut_content(obj, 120, 100, 150)
+
+    @staticmethod
+    def get_content_shorted(obj: Idea):
+        return IdeaListSerializer._cut_content(obj, 550, 500, 700)
 
     @staticmethod
     def get_difficulty(obj: Idea):

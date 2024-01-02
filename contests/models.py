@@ -31,4 +31,4 @@ class IdeaInContest(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
 
     # class Meta:
-        # ordering = ['-task_letter']
+    #     ordering = ['-task_letter']

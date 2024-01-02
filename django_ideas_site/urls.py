@@ -31,5 +31,6 @@ urlpatterns = [
                   path('', include('comments.urls')),
                   path("select2/", include("django_select2.urls")),
                   path('api/', include('api.urls')),
-                  path('', include('contests.urls'))
+                  path('', include('contests.urls')),
+                  path('', include('ajax.urls'))
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

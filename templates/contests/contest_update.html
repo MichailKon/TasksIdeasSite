@@ -1,6 +1,10 @@
 {% extends "contests/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+    <h2>
+        <a href="{% url 'contest-detail' contest.pk %}" class="btn btn-secondary">Назад</a>
+    </h2>
+
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
