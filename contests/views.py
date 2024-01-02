@@ -108,6 +108,7 @@ def contest_tasks_update_view(request, pk: int):
 
 @method_decorator(csrf_exempt, name='dispatch')
 def save_tasks2contest(request, pk: int):
+    # maybe have to move it to ajax
     contest = get_object_or_404(Contest, pk=pk)
     if not check_user_contest_access(contest, request.user, False):
         raise PermissionDenied
@@ -122,7 +123,7 @@ def save_tasks2contest(request, pk: int):
         if not check_user_contest_access(contest, request.user, True):
             continue
         problems_to_add.append(prob)
-    contest.ideas_list.through.objects.all().delete()
+    contest.ideas_list.clear()
     for problem in problems_to_add:
         contest.ideas_list.add(problem)
     return JsonResponse({"status": "success"})
